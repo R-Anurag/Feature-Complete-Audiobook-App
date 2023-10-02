@@ -1,5 +1,6 @@
 from kivy.lang import Builder
 from kivymd.app import MDApp
+from kivymd.uix.card import MDCardSwipe
 from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.uix.screen import MDScreen
 from kivy.clock import Clock
@@ -14,25 +15,24 @@ from kivymd.uix.behaviors import MagicBehavior
 from kivymd.uix.card import MDCard
 from kivymd.uix.list import TwoLineAvatarIconListItem, ILeftBody
 from kivymd.uix.dialog import MDDialog
-from kivy.utils import platform
+# from kivy.utils import platform
 import os
-from kivymd.uix.button import MDRectangleFlatIconButton
-from kivy.network.urlrequest import UrlRequest
-import zipfile
-import threading
-import time
-import io
+from kivymd.uix.button import MDRectangleFlatIconButton, MDFlatButton
 import requests
-
+from concurrent.futures import ThreadPoolExecutor
+from kivymd.uix.label import MDLabel
+from kivymd.uix.spinner.spinner import MDSpinner
+from time import sleep
+from threading import Thread
 
 # Checking the device platform to manage the download directory
 
-if platform == 'android':
-    from android.storage import primary_external_storage_path
-    dir = primary_external_storage_path()
-    download_dir_path = os.path.join(dir, 'Download')
-else:
-    download_dir_path = ''
+# if platform == 'android':
+#     from android.storage import primary_external_storage_path
+#     dir = primary_external_storage_path()
+#     download_dir_path = os.path.join(dir, 'Download')
+# else:
+#     download_dir_path = ''
     
 # ================================================================= 
 
@@ -42,22 +42,66 @@ KV = '''
 #:import colors kivymd.color_definitions.colors
 
 
+<SwipeToDeleteItem>:
+    size_hint_y: None
+    height: content.height
+
+
+    MDCardSwipeLayerBox:
+        padding: "8dp"
+        md_bg_color: utils.get_color_from_hex(colors['DeepOrange']['400'])
+
+        MDIconButton:
+            icon: "trash-can"
+            theme_icon_color: "Custom"
+            icon_color: 1,1,1,0.6
+            pos_hint: {"center_y": .5}
+            on_release: app.get_running_app().screens.get_screen('menuscreen').remove_item(root)
+
+    MDCardSwipeFrontBox:
+        md_bg_color: 1,1,1,0.8
+
+        TwoLineAvatarListItem:
+            id: content
+            text: root.text
+            secondary_text: "Rick Riordan"
+            text_color: 1, 1, 1, 1
+            secondary_text_color: 1, 2, 1, 1 
+            _no_ripple_effect: True
+            # bg_color: utils.get_color_from_hex(colors['Purple']['300'])
+
+            ImageLeftWidget:
+                source: ""
+
+
+
 <ListItemWithCheckbox>:
     _no_ripple_effect: True
-
     AsyncImage:
         source: root.source
-        size_hint: (0.95,0.6)
-        pos_hint: {'center_x':0.05, 'center_y': 0.5}
-        
+        size_hint: None, None
+        size:self.image_ratio*root.height,root.height/1.5
+        mipmap: True 
+        pos_hint: {'center_x':0.1, 'center_y': 0.5}
+     
     MDCheckbox:
+        id: checkbox
         checkbox_icon_down: 'checkbox-marked-outline'
-        selected_color: [0.2,0.6,1,1]
+        selected_color: utils.get_color_from_hex(colors['DeepPurple']['A700'])
         unselected_color: app.theme_cls.primary_color
         disabled_color: app.theme_cls.primary_color
         pos_hint: {'center_x':0.92, 'center_y': 0.5}
         size_hint: (None, None)
-        size: "24dp", "24dp"
+        size: "20dp", "20dp"
+        disabled_color: utils.get_color_from_hex(colors['Gray']['700'])
+
+    MDLabel:
+        text: root.mb_text
+        halign: "center"
+        font_size: 10
+        pos_hint: {'center_x':0.94, 'center_y': 0.22}
+        theme_text_color: "Custom"
+        text_color: 0, 0, 0, 0.8
 
     
 
@@ -108,12 +152,14 @@ MDScreenManager:
 <MenuScreen>
     name: 'menuscreen'
     back_color: '200'
-    search_label_color: '900'
-    gif_source: "assets/images/catplaying.zip"
+    search_label_color: '200'
+    audiobook_primary_text: 'No audiobooks found in the library'
+    audiobook_secondary_text: 'Click the + button to insert local audiobooks or download avaialable audiobooks from the server'
+    gif_source: "assets/images/catplayingdark.zip"
 
     canvas.before:
         Color:
-            rgba: eval(f"utils.get_color_from_hex(colors['Purple']['{self.back_color}'])")
+            rgba: eval(f"utils.get_color_from_hex(colors['DeepPurple']['A700'])")
         Rectangle:
             pos: self.pos
             size: self.size
@@ -129,6 +175,13 @@ MDScreenManager:
             anim_delay: 0.1
             minimap: True
             allow_stretch: True
+        
+        MDScrollView:
+            size_hint: (0.98, 0.81)
+            pos_hint: {"center_x": 0.5, "center_y": 0.41} 
+            MDList:
+                id: md_list
+                padding: 0
 
         MDFloatingActionButtonSpeedDial:
             id: speed_dial
@@ -145,22 +198,44 @@ MDScreenManager:
             bg_color_stack_button: utils.get_color_from_hex(colors['Purple']['500'])
         
         MDLabel:
-            font_size: self.width/12
+            font_size: self.width/8.5
             bold: True
             text:'Search' 
-            font_name: "assets/fonts/Aclonica.ttf"
+            font_name: "assets/fonts/try2.ttf"
             halign: 'left'
-            pos_hint: {'center_x':0.55, 'center_y':0.94}
+            pos_hint: {'center_x':0.55, 'center_y':0.93}
             theme_text_color: 'Custom'
             text_color: utils.get_color_from_hex(colors['Purple'][root.search_label_color])  
+
+        MDLabel:
+            font_size: self.width/20
+            bold: True
+            text: root.audiobook_primary_text
+            # font_name: "assets/fonts/Aclonica.ttf"
+            halign: 'center'
+            size_hint_x: 0.9
+            pos_hint: {'center_x':0.5, 'center_y':0.54}
+            theme_text_color: 'Custom'
+            text_color: utils.get_color_from_hex(colors['Gray']['400'])  
+        
+        MDLabel:
+            font_size: self.width/30
+            bold: True
+            text: root.audiobook_secondary_text
+            # font_name: "assets/fonts/Aclonica.ttf"
+            halign: 'center'
+            size_hint_x: 0.8
+            pos_hint: {'center_x':0.5, 'center_y':0.49}
+            theme_text_color: 'Custom'
+            text_color: utils.get_color_from_hex(colors['Gray']['300'])  
         
         ClickableTextFieldRound:
             id: search_field
             size_hint_x: None
-            width: root.width/1.1
+            width: root.width/1.02
             height: root.height/20
             hint_text: "Author, title or series" 
-            pos_hint: {"center_x": .5, "center_y": .84}
+            pos_hint: {"center_x": .5, "center_y": .85}
             on_text: root.set_list_md_icon(self.text, True)        
 
         
@@ -281,11 +356,7 @@ MDScreenManager:
                 pos_hint: {'center_x': 0.95, 'center_y': 0}
                 on_release:
                     self.icon_color = utils.get_color_from_hex(colors['Green']['500']) if self.icon_color == utils.get_color_from_hex(colors['Gray']['100']) else utils.get_color_from_hex(colors['Gray']['100'])
-            
-
-
-                
-                                                                
+                                                                 
                 
     
     MDFloatLayout:
@@ -313,10 +384,32 @@ class ClickableTextFieldRound(MDRelativeLayout):
     hint_text = StringProperty()
 
 
+class SwipeToDeleteItem(MDCardSwipe):
+    text = StringProperty()
+
+from kivy.properties import (
+    BooleanProperty,
+    ColorProperty,
+    ListProperty,
+    NumericProperty,
+    OptionProperty,
+    StringProperty,
+    VariableListProperty,
+)
+from kivy.metrics import dp
+import kivymd.material_resources as m_res
+
 class ListItemWithCheckbox(TwoLineAvatarIconListItem):
     text = StringProperty()
     secondary_text = StringProperty()
     source = ObjectProperty()
+    mb_text = StringProperty()
+    _txt_right_pad = NumericProperty("0dp")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._txt_right_pad = dp(10) + m_res.HORIZ_MARGINS
+    
 
 class MagicCard(MagicBehavior, MDCard):
     pass
@@ -374,7 +467,7 @@ class MenuScreen(MDScreen):
     icon_image_dict = DictProperty()
 
 
-    def on_enter(self, *kwargs):
+    def on_enter(self, *kwargs):   
 
         self.dialogx = None           
 
@@ -389,88 +482,16 @@ class MenuScreen(MDScreen):
                 ],
             }
         
+        returned_response = requests.session().get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml',headers = {'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}) 
+        
 
-        # self.book_link_dict = {
-            
-        #     'the lightning thief' : {
-        #         'part 1': 'https://drive.google.com/file/d/1myykN1CC520dFhvBzM7oM6bGY0cNpAbU/view?usp=sharing',
-        #         'part 2': 'https://drive.google.com/file/d/17g55Uijk4X_2Wc-U37xCqj9PkJCX9x6z/view?usp=sharing', 
-        #         'part 3': 'https://drive.google.com/file/d/1uP4wO0u94aXYQ-nHmicc117PajzVR2PP/view?usp=sharing', 
-        #         'part 4': 'https://drive.google.com/file/d/1QuWRoTiOLBvoJadjrhfFqYA4CHG59uqd/view?usp=sharing',
-        #         'part 5': 'https://drive.google.com/file/d/1j6katSD6mSlKZIWIjplbZ_X39KAtiidq/view?usp=sharing', 
-        #         'part 6': 'https://drive.google.com/file/d/1bDZ5WU5g9t_uuXDQl0RJc2Tl5pebZLBp/view?usp=sharing', 
-        #         'part 7': 'https://drive.google.com/file/d/1lBPfLgfgyqNMa4_Y-7SKVhpR0KRcuB05/view?usp=sharing', 
-        #         'part 8': 'https://drive.google.com/file/d/1afK5jE9b3pSmGOuZ6S158SNZ27vsTKiA/view?usp=sharing', 
-        #         'part 9': 'https://drive.google.com/file/d/1qZqBbarDT6w6GNvrP9PV4YKOY2PKs8dF/view?usp=sharing',
-        #         'part 10': 'https://drive.google.com/file/d/1rQ45EilX2GPOi3Y78lgL4rxULdLi9lwB/view?usp=sharing', 
-        #         'part 11': 'https://drive.google.com/file/d/1DanUoeiJfDYPMiYwuxktPilxNmywbphY/view?usp=sharing', 
-        #         'part 12': 'https://drive.google.com/file/d/1GBMu9tqi1-Yf9FZDGAeY-eV9eOznX5Ax/view?usp=sharing'
-        #     },
-
-        #     'the sea of monsters' : {
-        #         'part 1': 'https://drive.google.com/file/d/1X2C7KlZJiaURwFfid31OXa7jhGmjVCYi/view?usp=sharing', 
-        #         'part 2': 'https://drive.google.com/file/d/1UlfrDGwhybsotiBt2HENBDiwNJ1yUs9H/view?usp=sharing',
-        #         'part 3': 'https://drive.google.com/file/d/1x5aBAzo6J9NuqGSVsGyao4nK3fG8SlPa/view?usp=sharing', 
-        #         'part 4': 'https://drive.google.com/file/d/1CFrCQM5hH0IQJE7XjUYgwGOiqTzQURx3/view?usp=sharing', 
-        #         'part 5': 'https://drive.google.com/file/d/1lDqO39fk0mQlTBlS4NQtWbRMlnGfmg9-/view?usp=sharing', 
-        #         'part 6': 'https://drive.google.com/file/d/10MmXi3WG7OYDV3iWWFkgZcZISJRPR_b_/view?usp=sharing', 
-        #         'part 7': 'https://drive.google.com/file/d/1U4L6wJpPrNjpQIl7RXIvJcLKs_RU4d3T/view?usp=sharing', 
-        #         'part 8': 'https://drive.google.com/file/d/1I-4Ctn97kplkxW6ybJu5r-iOFkk4nhv1/view?usp=sharing'
-        #     },
-
-        #     'the battle of labyrinth' : {
-        #         'part 1': 'https://drive.google.com/file/d/1z1dkadBpjYvzGdRgIbaAg8iO9FXRf0jL/view?usp=sharing',
-        #         'part 2': 'https://drive.google.com/file/d/1Nl5DFf48v0ITR6M78S64Dj9Q2dUZArsH/view?usp=sharing', 
-        #         'part 3': 'https://drive.google.com/file/d/1_8wFXHVsUJarS9GDxKkVHtvsyXkcAKDh/view?usp=sharing', 
-        #         'part 4': 'https://drive.google.com/file/d/1tDfFRYbiUBhZWG4NMIK83vWM17UuDFg4/view?usp=sharing',
-        #         'part 5': 'https://drive.google.com/file/d/12vBkNAaMcejPvalDydhJvHncShBRZKkx/view?usp=sharing', 
-        #         'part 6': 'https://drive.google.com/file/d/1SUJNml3SpICYAjiScUzpSH0lJ10q9MLy/view?usp=sharing', 
-        #         'part 7': 'https://drive.google.com/file/d/1xshTkzbINu9fEt_ccwqtinaYl-Suke_P/view?usp=sharing', 
-        #         'part 8': 'https://drive.google.com/file/d/18UzF2su1-MSGhL3RwrBA-2q85mWGnyP6/view?usp=sharing', 
-        #         'part 9': 'https://drive.google.com/file/d/1q38EyYEc9g_S8Yq9izbxgnnk6ULLbfni/view?usp=sharing',
-        #         'part 10': 'https://drive.google.com/file/d/181vyPFDYjgrbAMmidtmpwXcD-Q57V76y/view?usp=sharing', 
-        #         'part 11': 'https://drive.google.com/file/d/1lg0W0Gx_Wd_gyn27uVO1gg5CIlEO4TVX/view?usp=sharing'
-        #     },
-
-        #     'the titan\'s curse' : {
-        #         'part 1': 'https://drive.google.com/file/d/1d-JFaAQ-AclooLsoMus2e7OEfmaXzKXs/view?usp=sharing', 
-        #         'part 2': 'https://drive.google.com/file/d/1mQnKGbA45WTSZG6beK2g29-D-wRTqNZ6/view?usp=sharing', 
-        #         'part 3': 'https://drive.google.com/file/d/1aTXJpDplPM-UkpEf9Mz1MnkFbWhp69Pb/view?usp=sharing', 
-        #         'part 4': 'https://drive.google.com/file/d/1_nS_Hli1YimaSO_GaeVoowxfay_Ygw9d/view?usp=sharing', 
-        #         'part 5': 'https://drive.google.com/file/d/153JZfeZa3GDRYEho8iX07OldGlq3qNYD/view?usp=sharing', 
-        #         'part 6': 'https://drive.google.com/file/d/1ZJPm0CE5FKs0nPL0_eg4kK81MoWu2qI4/view?usp=sharing', 
-        #         'part 7': 'https://drive.google.com/file/d/1vajjFlobJ7WsY2x8my1WpVvLd9OtIaQ8/view?usp=sharing', 
-        #         'part 8': 'https://drive.google.com/file/d/1AuWqkZ-fMb21xpMqoOUWWX8WMsDoriaC/view?usp=sharing',
-        #         'part 9': 'https://drive.google.com/file/d/1jo9HGW-uSMQppqCEBVl-HhXVV1mefNju/view?usp=sharing'
-        #     },
-
-        #     'the last olympian' : {
-        #         'part 1': 'https://drive.google.com/file/d/1HXOucheuBxPXbRdghXYiENbGfAmTs6pk/view?usp=sharing',
-        #         'part 2': 'https://drive.google.com/file/d/16bJ93ZG_YBjZ7oSmZkG0wyZ_gp2wDKgR/view?usp=sharing', 
-        #         'part 3': 'https://drive.google.com/file/d/1OKn0P3FN4Bt-7BiidQRk-Y909AcButAS/view?usp=sharing',
-        #         'part 4': 'https://drive.google.com/file/d/1EYYJ2PgVdH4ezgkrs4autTFJoCuDV7eO/view?usp=sharing', 
-        #         'part 5': 'https://drive.google.com/file/d/1zoaP9PTHOsthrJC2xZX5v-TwJ6e1sIG-/view?usp=sharing', 
-        #         'part 6': 'https://drive.google.com/file/d/149wwBnrTOmMWPjlTMgVo4x4x72t_wsaa/view?usp=sharing',
-        #         'part 7': 'https://drive.google.com/file/d/1Z6YPJhAJrCVbch0rZSdcaNgBiWk4YX_z/view?usp=sharing', 
-        #         'part 8': 'https://drive.google.com/file/d/11v515vx1JHaK3UA44pEhuZ1PkYiK21V5/view?usp=sharing',
-        #         'part 9': 'https://drive.google.com/file/d/1Y2-hmaZCrTxZ-8zaugW1G2bwPc0nJf4M/view?usp=sharing', 
-        #         'part 10': 'https://drive.google.com/file/d/1zn7zM-azTyJGGph-UGW_wHGsKNiX1PeN/view?usp=sharing', 
-        #         'part 11': 'https://drive.google.com/file/d/1MxRAmmRfWiPwGHjnCRJb0Xd18MXqJ9sS/view?usp=sharing',
-        #         'part 12': 'https://drive.google.com/file/d/1iuMRDb1de49Bn6RpC38cHA-rtu-XDg0c/view?usp=sharing'
-        #     }
-
-        # }
-
-
-        self.book_name_dict = {
-            'the lightning theif' : ['https://m.media-amazon.com/images/I/51SOMFPQ69L.jpg', 'not downloaded', 'Rick Riordan', 'https://drive.google.com/file/d/1GhR3evadmL2b3vbj1nconmAF_uzufutv/view?usp=sharing'],
-            'the sea of monsters' : ['https://m.media-amazon.com/images/I/51ui+BmTrqL.jpg', 'not downloaded', 'Rick Riordan', 'https://drive.google.com/file/d/1mEcxuPzGScDuIbwjP9x2ofR6G4nZsm5o/view?usp=sharing'],
-            'the battle of labyrinth' : ['https://m.media-amazon.com/images/I/51JqintVoTL.jpg', 'not downloaded', 'Rick Riordan', 'https://drive.google.com/file/d/1GcWm-YlgHq9XM06m_owBB-BnDDXi040_/view?usp=sharing'],
-            'the titan\'s curse' : ['https://m.media-amazon.com/images/I/51q9kr8AroL.jpg', 'not downloaded', 'Rick Riordan', 'https://drive.google.com/file/d/1vArbVlwYhA9b2hMT2M9rM20SNudy1o8P/view?usp=sharing'],
-            'the last labyrinth' : ['https://m.media-amazon.com/images/I/511BtjZ4VnL.jpg', 'not downloaded', 'Rick Riordan', 'https://drive.google.com/file/d/1ZbK5BE33n9JVQZDTpT4Ljch0Njx79gUc/view?usp=sharing']
-        }
+        import yaml
+        yaml_book_link = returned_response.content 
+        self.dict_book_link = yaml.safe_load(yaml_book_link)
 
         
+    def remove_item(self, instance):
+        MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.remove_widget(instance)
 
     def callback(self, x):
 
@@ -507,24 +528,28 @@ class MenuScreen(MDScreen):
 
         dialog_items = []
         
-        for i in self.book_name_dict.keys():
+        for i in self.dict_book_link.keys():
 
-            dialog_items.append(ListItemWithCheckbox(text = f'[size=16][font=DejaVuSans]{i.title()}[/font][/size]',
-                                              secondary_text=f"[size=14][font=assets/fonts/Roboto-LightItalic.ttf]{self.book_name_dict[i][2].title()}[/font][/size]",
-                                              source=self.book_name_dict[i][0],
-                                              divider='Inset',
+            dialog_items.append(ListItemWithCheckbox(text = f'[size=14][font=DejaVuSans]{i.title()}[/font][/size]',
+                                              secondary_text=f"[size=12][font=assets/fonts/Roboto-LightItalic.ttf]{self.dict_book_link[i][0].title()}[/font][/size]",
+                                              source=self.dict_book_link[i][1],
+                                              mb_text=self.dict_book_link[i][3],
+                                              divider='Inset',   
                                               divider_color=utils.get_color_from_hex(colors['Purple']['200'])))
         
         if not self.dialogx:
 
             self.dialogx = MDDialog(
-                size_hint=(0.85, None),
+                size_hint=(0.90, None),
                 md_bg_color=[1,1,1,0.7],
                 title = "[font=assets/fonts/Aclonica.ttf][size=18][b]Download Audiobooks?[/b][/size][/font]",
                 text = "[size=16]Select the ones you want to download[/size]",
+                elevation = 4,
+                radius = [20, 7, 20, 7],
+                padding = 0, 
                 type = 'confirmation',
                 items = dialog_items,
-                buttons=[
+                buttons = [
                     MDRectangleFlatIconButton(
                         icon='close',
                         md_bg_color = utils.get_color_from_hex(colors['Purple']['500']),
@@ -532,84 +557,175 @@ class MenuScreen(MDScreen):
                         icon_color=[1,1,1,0.9],
                         text_color=[1,1,1,0.9],
                         line_color=[.2,.2,.2,0.85],
-                        text="[font=assets/fonts/Aclonica.ttf][size=16][b]CANCEL[/b][/size][/font]",
-                        padding=[6,6]
+                        text="[font=assets/fonts/Aclonica.ttf][size=14][b]CANCEL[/b][/size][/font]",
+                        padding=[4,4],
+                        on_release = lambda x: self.dialogx.dismiss()
                         
                     ),
                     MDRectangleFlatIconButton(
                         icon='thumb-up',
-                        text="[font=assets/fonts/Aclonica.ttf][size=16][b]OK[/b][/size][/font]",
+                        text="[font=assets/fonts/Aclonica.ttf][size=14][b]OK[/b][/size][/font]",
                         md_bg_color = utils.get_color_from_hex(colors['Purple']['500']),
                         theme_text_color="Custom",
                         icon_color=[1,1,1,0.9],
                         text_color=[1,1,1,0.9],
                         line_color=[.2,.2,.2,0.85],
-                        padding=[6,6],
-                        on_release = self.get_active_boxes
+                        padding=[4,4],
+                        on_press = self.get_active_boxes,
                     ),
                 ])
             
             self.dialogx.open()
+        
+        else:
+            self.dialogx.open()
+
 
 
     def get_active_boxes(self, *kwargs):
         
-        if self.dialogx:
-            
-            selected_books = self.dialogx.children[0].children[2].children[0].children
-            self.selected_books = [i.text.replace('[size=16][font=DejaVuSans]','').replace('[/font][/size]','') for i in selected_books if i.children[0].active == True]
-       
-            print(self.selected_books)
-            self.thread()
+
+        #Storing the active checkboxes in a list
+        self.mdlist_items = self.dialogx.children[0].children[2].children[0].children
+        self.selected_books = [i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() for i in self.mdlist_items if i.children[1].active == True]
     
-    def thread(self, *args):
         
-        self.stop = threading.Event() 
-
+        #This is a list containing nested list for downloading 
+        complete_url_list_with_filepath = []
+        for i in self.dict_book_link.keys():
+            for j in self.dict_book_link[i][2].keys():
+                if i in self.selected_books:
+                    complete_url_list_with_filepath.append([i.lower(), j.lower(), self.dict_book_link[i][2][j], self.dict_book_link[i][3] ])
+        
+        
+        #Forming a dictionary to store the size of audiobook and current_downloaded_size
+        self.downloading_size_dict = {}
         for i in self.selected_books:
-            if i in [x.title() for x in self.book_name_dict.keys()]:
-                print('found')
-                ZIP_URL = self.book_name_dict[i.lower()][3]
-                self.r = requests.get(ZIP_URL)
-             
-                self.ZIP_FILENAME = i+'.zip'
 
-                with open(os.path.join(download_dir_path,self.ZIP_FILENAME), 'wb') as f:
-                    f.write(self.r.content)
-                self.unzip_content()
-                # req = UrlRequest(ZIP_URL,
-                #             chunk_size=1024, on_success=self.unzip_content,
-                #             file_path=os.path.join(download_dir_path, self.ZIP_FILENAME))
-                # print(self.ZIP_FILENAME)
+            self.downloading_size_dict[f"{i}_full_size"] = int(self.dict_book_link[i][3].replace('MB', ''))
             
-                #THE DOWNLOADING SOMEHOW CORRUPS THE FILE FROM GOOGLE DRIVE IG COZ ITS TOO BIG. ill upload to github and then download maybe
+            self.downloading_size_dict[f"{i}_downloaded_size"] = 0
+           
+        
+        #Deleting the ok and cancel button 
+        for i in list(self.dialogx.children[0].children[0].children[0].children):
+            self.dialogx.children[0].children[0].children[0].remove_widget(i)
 
-    def unzip_content(self):
-        print('came inside unzip content ')
-        threading.Thread(target=self.unzip_thread).start()
+        
+        # import pickle
+        # with open("app_data/downloaded_audiobooks.dat", "ab+") as file:
+            # pickle.dump(self.selected_books, file)
+        
 
-    def unzip_thread(self):
-        print('came inside unzip thread')
-        print("Unzipping file")
-        fh = open(os.path.join(download_dir_path,self.ZIP_FILENAME), 'rb')
-        z = zipfile.ZipFile(fh)
-        ZIP_EXTRACT_FOLDER = os.path.join(download_dir_path,'zipfile.zip') + '_extracted'
-        print(ZIP_EXTRACT_FOLDER)
-        if not os.path.exists(ZIP_EXTRACT_FOLDER):
-            os.makedirs(ZIP_EXTRACT_FOLDER)
-        z.extractall(ZIP_EXTRACT_FOLDER)
-        fh.close()
-        # os.remove(ZIP_FILENAME)
-        time.sleep(4) # DEBUG: stretch out the unzip method to test threading
-
-       
-        z = zipfile.ZipFile(io.BytesIO(self.r.content))
-        z.extractall()
-
-        print("Done")
+        # Removing the Checkbox from the selected items
+        for i in self.mdlist_items:
+            if i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() in self.selected_books:
+                    i.remove_widget(i.children[1])
+            else:
+                i.ids.checkbox.disabled = True
+                i.ids.checkbox.checkbox_icon_normal = "checkbox-blank-off"
 
 
 
+        # adding the spinner to selected items from the dialog list
+        for i in self.mdlist_items:
+            if i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() in self.selected_books:
+                i.add_widget(
+                    MDSpinner(size_hint=(None, None), size=(dp(24), dp(24)), pos_hint={"center_x":0.92, "center_y":0.5}, active=True, line_width=dp(3), palette=[
+                        [0.28627450980392155, 0.8431372549019608, 0.596078431372549, 1],
+                        [0.3568627450980392, 0.3215686274509804, 0.8666666666666667, 1],
+                        [0.8862745098039215, 0.36470588235294116, 0.592156862745098, 1],
+                        [0.8784313725490196, 0.9058823529411765, 0.40784313725490196, 1],
+                    ])
+                )      
+
+        # Adding the Downloading label button to MDDialog
+        self.label_button = MDFlatButton(text="[font=assets/fonts/Roboto-LightItalic.ttf][size=14]Downloading...[/size][/font]", theme_text_color="Custom", text_color="orange")
+        
+        self.dialogx.children[0].children[0].children[0].add_widget(self.label_button)
+        
+            
+        #Adding downloading percentage label to md_list
+        for i in self.mdlist_items:
+            if i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() in self.selected_books:
+                
+                var_name = i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower()
+                
+                i.add_widget(
+                    MDLabel(
+                    text=str(self.downloading_size_dict[f"{var_name}_downloaded_size"])+" %", font_size=10, pos_hint= {'center_x':0.92, 'center_y': 0.22},
+                    theme_text_color="Custom",
+                    text_color=[0, 0, 0, 0.8])
+                )
+                        
+                       
+        
+        thread = Thread(target=self.thread_pool_download_function, args=(complete_url_list_with_filepath,))
+        # run the thread
+        thread.start()
+        
+    
+    def thread_pool_download_function(self, complete_url_list_with_filepath):
+
+        
+        def get_confirm_token(response):
+            for key, value in response.cookies.items():
+                if key.startswith('download_warning'):
+                    return value
+
+            return None
+            
+
+        def download_file(url_filepath_list):
+            
+            session = requests.Session()
+        
+            response = session.get(url_filepath_list[2], params = { 'id' : id }, stream = True)
+            token = get_confirm_token(response)
+            
+            if token:
+                params = { 'id' : id, 'confirm' : token }
+                response = session.get(url_filepath_list[2], params = params, stream = True)
+
+            save_response_content(response, url_filepath_list)
+        
+        def save_response_content(response, url_filepath_list):
+    
+            # download_filder_path contains the name of the file as well
+            download_folder_path = os.path.join(r'app data/audiobooks', url_filepath_list[0]) 
+
+            if not os.path.exists(download_folder_path):
+                os.makedirs(download_folder_path)
+
+            filename = url_filepath_list[1]
+
+            CHUNK_SIZE = 32768
+            with open(os.path.join(download_folder_path, filename)+'.mp3', "wb") as f:
+                for chunk in response.iter_content(CHUNK_SIZE):
+                    if chunk: 
+
+                        self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"] += len(chunk)/(1024*1024)
+                        f.write(chunk)
+
+                        combined_downloaded_size = sum([ self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_downloaded_size") ])
+
+                        combined_full_size = sum([ self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_downloaded_size") ])
+
+                        update_downloading_perc_label(self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"], self.downloading_size_dict[f"{url_filepath_list[0].lower()}_full_size"], url_filepath_list[0])
+
+            
+        def update_downloading_perc_label(downloaded_size, full_size, received_name):
+
+            req_label_widget = [i for i in self.mdlist_items if i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() == received_name.lower() ][0].children[0]
+            
+            req_label_widget.text = f"{( downloaded_size / full_size ) * 100}"
+        
+    
+
+        with ThreadPoolExecutor() as executor:
+            executor.map(download_file, complete_url_list_with_filepath)
+        
+    
 
 sm = MDScreenManager()
 sm.add_widget(MenuScreen(name='menuscreen'))
@@ -645,5 +761,11 @@ class MainApp(MDApp):
             "Dark" if self.theme_cls.theme_style == "Light" else "Light"
         )
    
+    def on_start(self):
+         for i in range(20):
+            MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.add_widget(
+                SwipeToDeleteItem(text=f"One-line item {i}",
+                md_bg_color=(1,2,1,1 ))
+            )
 
 MainApp().run()
