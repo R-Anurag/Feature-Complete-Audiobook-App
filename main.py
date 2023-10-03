@@ -17,13 +17,25 @@ from kivymd.uix.list import TwoLineAvatarIconListItem, ILeftBody
 from kivymd.uix.dialog import MDDialog
 # from kivy.utils import platform
 import os
-from kivymd.uix.button import MDRectangleFlatIconButton, MDFlatButton
+from kivymd.uix.button import MDRectangleFlatIconButton, MDRaisedButton, MDIconButton
 import requests
 from concurrent.futures import ThreadPoolExecutor
 from kivymd.uix.label import MDLabel
 from kivymd.uix.spinner.spinner import MDSpinner
-from time import sleep
+import time
 from threading import Thread
+from kivy.properties import (
+    BooleanProperty,
+    ColorProperty,
+    ListProperty,
+    NumericProperty,
+    OptionProperty,
+    StringProperty,
+    VariableListProperty,
+)
+from kivy.metrics import dp
+import kivymd.material_resources as m_res
+import pickle
 
 # Checking the device platform to manage the download directory
 
@@ -87,21 +99,24 @@ KV = '''
     MDCheckbox:
         id: checkbox
         checkbox_icon_down: 'checkbox-marked-outline'
-        selected_color: utils.get_color_from_hex(colors['DeepPurple']['A700'])
-        unselected_color: app.theme_cls.primary_color
-        disabled_color: app.theme_cls.primary_color
         pos_hint: {'center_x':0.92, 'center_y': 0.5}
         size_hint: (None, None)
-        size: "20dp", "20dp"
-        disabled_color: utils.get_color_from_hex(colors['Gray']['700'])
+        size: ("24dp", "24dp")
+        selected_color: utils.get_color_from_hex(colors['Green']['700'])
+        unselected_color: utils.get_color_from_hex(colors['Gray']['500'])
+        disabled_color: utils.get_color_from_hex(colors['Gray']['500'])
+        on_state:
+            size_label.text = root.mb_text if checkbox.active == True else ""
 
     MDLabel:
-        text: root.mb_text
+        id: size_label
+        text: ""
         halign: "center"
         font_size: 10
-        pos_hint: {'center_x':0.94, 'center_y': 0.22}
+        pos_hint: {'center_x':0.92, 'center_y': 0.22}
         theme_text_color: "Custom"
         text_color: 0, 0, 0, 0.8
+    
 
     
 
@@ -387,17 +402,7 @@ class ClickableTextFieldRound(MDRelativeLayout):
 class SwipeToDeleteItem(MDCardSwipe):
     text = StringProperty()
 
-from kivy.properties import (
-    BooleanProperty,
-    ColorProperty,
-    ListProperty,
-    NumericProperty,
-    OptionProperty,
-    StringProperty,
-    VariableListProperty,
-)
-from kivy.metrics import dp
-import kivymd.material_resources as m_res
+
 
 class ListItemWithCheckbox(TwoLineAvatarIconListItem):
     text = StringProperty()
@@ -467,9 +472,7 @@ class MenuScreen(MDScreen):
     icon_image_dict = DictProperty()
 
 
-    def on_enter(self, *kwargs):   
-
-        self.dialogx = None           
+    def on_enter(self, *kwargs):              
 
         self.data = {
                 'Switch mode': [
@@ -526,60 +529,67 @@ class MenuScreen(MDScreen):
 
     def show_download_list(self, *kwargs):
 
+        already_downloaded_audiobooks = []
+        if os.path.isfile("app_data/downloaded_audiobooks.dat"):
+            
+            with (open("app_data/downloaded_audiobooks.dat", "rb")) as openfile:
+                while True:
+                    try:
+                        already_downloaded_audiobooks.append(pickle.load(openfile))
+                    except EOFError:
+                        break
+        print(already_downloaded_audiobooks)
         dialog_items = []
         
         for i in self.dict_book_link.keys():
 
-            dialog_items.append(ListItemWithCheckbox(text = f'[size=14][font=DejaVuSans]{i.title()}[/font][/size]',
-                                              secondary_text=f"[size=12][font=assets/fonts/Roboto-LightItalic.ttf]{self.dict_book_link[i][0].title()}[/font][/size]",
-                                              source=self.dict_book_link[i][1],
-                                              mb_text=self.dict_book_link[i][3],
-                                              divider='Inset',   
-                                              divider_color=utils.get_color_from_hex(colors['Purple']['200'])))
+            if i not in already_downloaded_audiobooks:
+                
+                dialog_items.append(ListItemWithCheckbox(text = f'[size=14][font=DejaVuSans]{i.title()}[/font][/size]',
+                                                secondary_text=f"[size=12][font=assets/fonts/Roboto-LightItalic.ttf]{self.dict_book_link[i][0].title()}[/font][/size]",
+                                                source=self.dict_book_link[i][1],
+                                                mb_text=self.dict_book_link[i][3],
+                                                divider='Inset',   
+                                                divider_color=utils.get_color_from_hex(colors['Purple']['200'])))
         
-        if not self.dialogx:
-
-            self.dialogx = MDDialog(
-                size_hint=(0.90, None),
-                md_bg_color=[1,1,1,0.7],
-                title = "[font=assets/fonts/Aclonica.ttf][size=18][b]Download Audiobooks?[/b][/size][/font]",
-                text = "[size=16]Select the ones you want to download[/size]",
-                elevation = 4,
-                radius = [20, 7, 20, 7],
-                padding = 0, 
-                type = 'confirmation',
-                items = dialog_items,
-                buttons = [
-                    MDRectangleFlatIconButton(
-                        icon='close',
-                        md_bg_color = utils.get_color_from_hex(colors['Purple']['500']),
-                        theme_text_color="Custom",
-                        icon_color=[1,1,1,0.9],
-                        text_color=[1,1,1,0.9],
-                        line_color=[.2,.2,.2,0.85],
-                        text="[font=assets/fonts/Aclonica.ttf][size=14][b]CANCEL[/b][/size][/font]",
-                        padding=[4,4],
-                        on_release = lambda x: self.dialogx.dismiss()
-                        
-                    ),
-                    MDRectangleFlatIconButton(
-                        icon='thumb-up',
-                        text="[font=assets/fonts/Aclonica.ttf][size=14][b]OK[/b][/size][/font]",
-                        md_bg_color = utils.get_color_from_hex(colors['Purple']['500']),
-                        theme_text_color="Custom",
-                        icon_color=[1,1,1,0.9],
-                        text_color=[1,1,1,0.9],
-                        line_color=[.2,.2,.2,0.85],
-                        padding=[4,4],
-                        on_press = self.get_active_boxes,
-                    ),
-                ])
             
-            self.dialogx.open()
+        self.dialogx = MDDialog(
+            size_hint=(0.90, None),
+            md_bg_color=[1,1,1,0.7],
+            title = "[font=assets/fonts/Aclonica.ttf][size=18][b]Download Audiobooks?[/b][/size][/font]",
+            text = "[size=16]Select the ones you want to download[/size]",
+            elevation = 4,
+            radius = [20, 7, 20, 7],
+            padding = 0, 
+            type = 'confirmation',
+            items = dialog_items,
+            buttons = [
+                MDRectangleFlatIconButton(
+                    icon='close',
+                    md_bg_color = utils.get_color_from_hex(colors['Purple']['500']),
+                    theme_text_color="Custom",
+                    icon_color=[1,1,1,0.9],
+                    text_color=[1,1,1,0.9],
+                    line_color=[.2,.2,.2,0.85],
+                    text="[font=assets/fonts/Aclonica.ttf][size=14][b]CANCEL[/b][/size][/font]",
+                    padding=[4,4],
+                    on_release = lambda x: self.dialogx.dismiss()
+                    
+                ),
+                MDRectangleFlatIconButton(
+                    icon='thumb-up',
+                    text="[font=assets/fonts/Aclonica.ttf][size=14][b]OK[/b][/size][/font]",
+                    md_bg_color = utils.get_color_from_hex(colors['Purple']['500']),
+                    theme_text_color="Custom",
+                    icon_color=[1,1,1,0.9],
+                    text_color=[1,1,1,0.9],
+                    line_color=[.2,.2,.2,0.85],
+                    padding=[4,4],
+                    on_press = self.get_active_boxes,
+                ),
+            ])
         
-        else:
-            self.dialogx.open()
-
+        self.dialogx.open()
 
 
     def get_active_boxes(self, *kwargs):
@@ -610,11 +620,6 @@ class MenuScreen(MDScreen):
         #Deleting the ok and cancel button 
         for i in list(self.dialogx.children[0].children[0].children[0].children):
             self.dialogx.children[0].children[0].children[0].remove_widget(i)
-
-        
-        # import pickle
-        # with open("app_data/downloaded_audiobooks.dat", "ab+") as file:
-            # pickle.dump(self.selected_books, file)
         
 
         # Removing the Checkbox from the selected items
@@ -640,7 +645,11 @@ class MenuScreen(MDScreen):
                 )      
 
         # Adding the Downloading label button to MDDialog
-        self.label_button = MDFlatButton(text="[font=assets/fonts/Roboto-LightItalic.ttf][size=14]Downloading...[/size][/font]", theme_text_color="Custom", text_color="orange")
+        self.label_button = MDRaisedButton(
+            text="", 
+            md_bg_color=utils.get_color_from_hex(colors['DeepPurple']['A400']), font_size="12sp",
+            theme_text_color="Custom", text_color=utils.get_color_from_hex(colors['Gray']['200']), padding=[8,0], elevation=None, ripple_scale=0, size_hint=(None, None), size=(100, 20)
+            )
         
         self.dialogx.children[0].children[0].children[0].add_widget(self.label_button)
         
@@ -653,19 +662,56 @@ class MenuScreen(MDScreen):
                 
                 i.add_widget(
                     MDLabel(
-                    text=str(self.downloading_size_dict[f"{var_name}_downloaded_size"])+" %", font_size=10, pos_hint= {'center_x':0.92, 'center_y': 0.22},
-                    theme_text_color="Custom",
-                    text_color=[0, 0, 0, 0.8])
+                        text="[size=10]"+str(self.downloading_size_dict[f"{var_name}_downloaded_size"])+"[/size]",
+                        halign="center",
+                        markup=True,
+                        pos_hint={'center_x':0.82, 'center_y': 0.22},
+                        theme_text_color="Custom",
+                        text_color=utils.get_color_from_hex(colors['Green']['700'])
+                    )
                 )
-                        
+                
                        
         
-        thread = Thread(target=self.thread_pool_download_function, args=(complete_url_list_with_filepath,))
+        self.thread = Thread(target=self.thread_pool_download_function, args=(complete_url_list_with_filepath, self.mdlist_items))
         # run the thread
-        thread.start()
-        
+        self.thread.start()
+
+        self.downloaded_audiobooks = []
+        Clock.schedule_interval(self.check_downloaded_status, 1)
+
+
+    def check_downloaded_status(self, *args):
+
+        for i in self.mdlist_items:
+
+            variable = i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower()
+            
+            if variable in self.selected_books and variable not in self.downloaded_audiobooks:
+                
+                if not self.downloading_size_dict[f"{variable}_downloaded_size"] < self.downloading_size_dict[f"{variable}_full_size"] - 2:
+                     
+                    
+                    self.downloaded_audiobooks.append(variable)
+
+                    i.remove_widget(i.children[1])
+
+                    i.add_widget(
+                         MDIconButton(
+                            icon="checkbox-marked-circle",
+                            pos_hint={"center_x":0.92, "center_y":0.5},theme_icon_color="Custom",
+                            icon_color=utils.get_color_from_hex(colors['Green']['700'])
+                         )
+                    )
+
+        if self.selected_books == self.downloaded_audiobooks:
+            with open(r"app_data/downloaded_audiobooks.dat", "ab") as file:
+                for i in self.selected_books:
+                    pickle.dump(i, file)
+            Clock.unschedule(self.check_downloaded_status)
+
     
-    def thread_pool_download_function(self, complete_url_list_with_filepath):
+    def thread_pool_download_function(self, complete_url_list_with_filepath, mdlist_items):
 
         
         def get_confirm_token(response):
@@ -690,12 +736,14 @@ class MenuScreen(MDScreen):
             save_response_content(response, url_filepath_list)
         
         def save_response_content(response, url_filepath_list):
-    
+
+
             # download_filder_path contains the name of the file as well
             download_folder_path = os.path.join(r'app data/audiobooks', url_filepath_list[0]) 
 
             if not os.path.exists(download_folder_path):
                 os.makedirs(download_folder_path)
+
 
             filename = url_filepath_list[1]
 
@@ -709,19 +757,45 @@ class MenuScreen(MDScreen):
 
                         combined_downloaded_size = sum([ self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_downloaded_size") ])
 
-                        combined_full_size = sum([ self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_downloaded_size") ])
+                        combined_full_size = sum([ self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_full_size") ])
 
-                        update_downloading_perc_label(self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"], self.downloading_size_dict[f"{url_filepath_list[0].lower()}_full_size"], url_filepath_list[0])
+                        combined_download_percentage = combined_downloaded_size / combined_full_size * 100
+     
+
+                        update_downloading_perc_label(self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"], url_filepath_list[0], combined_download_percentage, self.downloading_size_dict[f"{url_filepath_list[0].lower()}_full_size"], self.dialogx, self.mdlist_items)
+
+                
 
             
-        def update_downloading_perc_label(downloaded_size, full_size, received_name):
+        def update_downloading_perc_label(downloaded_size, received_name, download_percentage, full_size, download_dialog, mdlist_items):
 
-            req_label_widget = [i for i in self.mdlist_items if i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() == received_name.lower() ][0].children[0]
+
+            req_label_widget = [i for i in mdlist_items if i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() == received_name.lower() ][0].children[0]
+
+            req_label_button_widget = self.label_button
             
-            req_label_widget.text = f"{( downloaded_size / full_size ) * 100}"
         
-    
+            req_label_widget.text =  "[size=10]" + str(f"{round(downloaded_size,1)}") + "/" + "[/size]" 
 
+                    
+            #Updating the button label in MDDialog box
+            if download_percentage < 99.7:
+                req_label_button_widget.text = "[font=assets/fonts/try4.ttf]Downloading... [/font]" + f"[b]{round(download_percentage,1)}%[/b]"
+            else:
+                for i in range(5,0,-1):
+                    req_label_button_widget.text = "[font=assets/fonts/try4.ttf]Download Finished! [/font]" + f"[b]{100.0}%[/b]" + f"\n[font=assets/fonts/try4.ttf][i]This Dialog box will self close in[/i][/font] [b]{i}[/b]"
+                
+                    time.sleep(1)
+
+                download_dialog.dismiss()
+
+                
+                # import threading
+                # print(threading.active_count())
+                # #using an exec statement to stop the threading
+                # if self.thread.is_set():
+                #     return
+                
         with ThreadPoolExecutor() as executor:
             executor.map(download_file, complete_url_list_with_filepath)
         
