@@ -17,6 +17,7 @@ from kivymd.uix.list import TwoLineAvatarIconListItem, ILeftBody
 from kivymd.uix.dialog import MDDialog
 # from kivy.utils import platform
 import os
+import yaml
 from kivymd.uix.button import MDRectangleFlatIconButton, MDRaisedButton, MDIconButton
 import requests
 from concurrent.futures import ThreadPoolExecutor
@@ -490,7 +491,7 @@ class MenuScreen(MDScreen):
 
         import yaml
         yaml_book_link = returned_response.content 
-        self.dict_book_link = yaml.safe_load(yaml_book_link)
+        self.dict_book_link = MDApp.get_running_app().screens.dict_book_link
 
         
     def remove_item(self, instance):
@@ -530,9 +531,9 @@ class MenuScreen(MDScreen):
     def show_download_list(self, *kwargs):
 
         already_downloaded_audiobooks = []
-        if os.path.isfile("app_data/downloaded_audiobooks.dat"):
+        if os.path.isfile("app data/downloaded_audiobooks.dat"):
             
-            with (open("app_data/downloaded_audiobooks.dat", "rb")) as openfile:
+            with (open("app data/downloaded_audiobooks.dat", "rb")) as openfile:
                 while True:
                     try:
                         already_downloaded_audiobooks.append(pickle.load(openfile))
@@ -703,12 +704,14 @@ class MenuScreen(MDScreen):
                             icon_color=utils.get_color_from_hex(colors['Green']['700'])
                          )
                     )
-
+      
         if self.selected_books == self.downloaded_audiobooks:
-            with open(r"app_data/downloaded_audiobooks.dat", "ab") as file:
+            with open(r"app data/downloaded_audiobooks.dat", "ab") as file:
                 for i in self.selected_books:
                     pickle.dump(i, file)
-            Clock.unschedule(self.check_downloaded_status)
+
+            Clock.schedule_once(Clock.unschedule(self.check_downloaded_status), 1)
+            
 
     
     def thread_pool_download_function(self, complete_url_list_with_filepath, mdlist_items):
@@ -836,7 +839,12 @@ class MainApp(MDApp):
         )
    
     def on_start(self):
-         for i in range(20):
+         
+        returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml',headers = {'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}) 
+        
+        self.dict_book_link = yaml.safe_load(returned_response.content )
+    
+        for i in range(20):
             MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.add_widget(
                 SwipeToDeleteItem(text=f"One-line item {i}",
                 md_bg_color=(1,2,1,1 ))
