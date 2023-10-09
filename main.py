@@ -17,6 +17,7 @@ from kivymd.uix.list import TwoLineAvatarIconListItem, ILeftBody
 from kivymd.uix.dialog import MDDialog
 # from kivy.utils import platform
 import os
+import shutil
 import yaml
 from kivymd.uix.button import MDRectangleFlatIconButton, MDRaisedButton, MDIconButton
 import requests
@@ -53,6 +54,7 @@ import pickle
 KV = '''
 #:import utils kivy.utils
 #:import colors kivymd.color_definitions.colors
+#: import SwapTransition kivy.uix.screenmanager.SwapTransition
 
 
 <SwipeToDeleteItem>:
@@ -76,15 +78,19 @@ KV = '''
 
         TwoLineAvatarListItem:
             id: content
-            text: root.text
-            secondary_text: "Rick Riordan"
+            text: "[size=18]"+root.text+"[/size]"
+            secondary_text: "[size=14]"+root.secondary_text+"[/size]"
             text_color: 1, 1, 1, 1
             secondary_text_color: 1, 2, 1, 1 
             _no_ripple_effect: True
             # bg_color: utils.get_color_from_hex(colors['Purple']['300'])
+            on_release: 
+                app.get_running_app().screens.get_screen('menuscreen').load_audiobook(root)
+                app.root.transition = SwapTransition()
+                app.root.current = 'playscreen'
 
             ImageLeftWidget:
-                source: ""
+                source: root.source
 
 
 
@@ -169,9 +175,10 @@ MDScreenManager:
     name: 'menuscreen'
     back_color: '200'
     search_label_color: '200'
-    audiobook_primary_text: 'No audiobooks found in the library'
+    audiobook_primary_text: 'No audiobooks found'
     audiobook_secondary_text: 'Click the + button to insert local audiobooks or download avaialable audiobooks from the server'
-    gif_source: "assets/images/catplayingdark.zip"
+    gif_source: "assets/images/welcome cat.zip"
+    gif_source_2: "assets/images/catplayingdark.zip"
 
     canvas.before:
         Color:
@@ -185,9 +192,9 @@ MDScreenManager:
         id: floatlayout_id
         Image:
             id: background_gif
-            source: root.gif_source
-            size_hint: (0.3, 0.3)
-            pos_hint: {"center_x": 0.8, "center_y": 0.95} 
+            source: root.gif_source if md_list.children == [] else root.gif_source_2
+            size_hint: (0.3, 0.3) if md_list.children == [] else (0.22, 0.22)
+            pos_hint: {"center_x": 0.5, "center_y": 0.6} if md_list.children == [] else {"center_x": 0.85, "center_y": 0.93}
             anim_delay: 0.1
             minimap: True
             allow_stretch: True
@@ -195,6 +202,7 @@ MDScreenManager:
         MDScrollView:
             size_hint: (0.98, 0.81)
             pos_hint: {"center_x": 0.5, "center_y": 0.41} 
+            do_scroll_y: False
             MDList:
                 id: md_list
                 padding: 0
@@ -224,24 +232,26 @@ MDScreenManager:
             text_color: utils.get_color_from_hex(colors['Purple'][root.search_label_color])  
 
         MDLabel:
-            font_size: self.width/20
+            font_size: self.width/13
             bold: True
-            text: root.audiobook_primary_text
-            # font_name: "assets/fonts/Aclonica.ttf"
+            text: root.audiobook_primary_text if md_list.children == [] else ""
+            font_name: "assets/fonts/PlayfairDisplay-Bold.ttf"
+            # font_name: "Roboto Mono Regular"
             halign: 'center'
             size_hint_x: 0.9
-            pos_hint: {'center_x':0.5, 'center_y':0.54}
+            pos_hint: {'center_x':0.5, 'center_y':0.50}
             theme_text_color: 'Custom'
             text_color: utils.get_color_from_hex(colors['Gray']['400'])  
         
         MDLabel:
-            font_size: self.width/30
+            font_size: self.width/20
             bold: True
-            text: root.audiobook_secondary_text
+            text: root.audiobook_secondary_text if md_list.children == [] else ""
+            font_name: "assets/fonts/PlayfairDisplay-Regular.ttf"
             # font_name: "assets/fonts/Aclonica.ttf"
             halign: 'center'
-            size_hint_x: 0.8
-            pos_hint: {'center_x':0.5, 'center_y':0.49}
+            size_hint_x: 0.9
+            pos_hint: {'center_x':0.5, 'center_y':0.42}
             theme_text_color: 'Custom'
             text_color: utils.get_color_from_hex(colors['Gray']['300'])  
         
@@ -268,7 +278,7 @@ MDScreenManager:
         
     MDFloatLayout:
         id: playerpart
-        size_hint: 1, 0.8
+        size_hint: 0.9, 0.8
         pos_hint: {"center_x": .5, "center_y": .6}
         orientation: 'horizontal'
 
@@ -281,7 +291,7 @@ MDScreenManager:
             size_hint: (.9, .8)
             focus_behavior: False
             pos_hint: {"center_x": .5, "center_y": .45}
-            md_bg_color: (0, 0, 0, 0.5)
+            md_bg_color: (0, 0, 0, 0.1)
 
         FitImage:
             size_hint: (0.80, 0.5)
@@ -402,6 +412,8 @@ class ClickableTextFieldRound(MDRelativeLayout):
 
 class SwipeToDeleteItem(MDCardSwipe):
     text = StringProperty()
+    secondary_text = StringProperty()
+    source = ObjectProperty()
 
 
 
@@ -460,7 +472,6 @@ class PlayScreen(MDScreen):
 
         # if the sound has finished, stop the updating
         if self.a.state == 'stop':
-            print('stopped')
             self.updater.cancel()
             self.updater = None
 
@@ -486,16 +497,32 @@ class MenuScreen(MDScreen):
                 ],
             }
         
-        returned_response = requests.session().get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml',headers = {'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}) 
-        
 
-        import yaml
-        yaml_book_link = returned_response.content 
-        self.dict_book_link = MDApp.get_running_app().screens.dict_book_link
+        returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml',headers = {'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}) 
+        
+        self.dict_book_link = yaml.safe_load(returned_response.content )
 
         
     def remove_item(self, instance):
+        
+        if os.path.exists(f"app data/audiobooks/{instance.text.lower()}"):
+            shutil.rmtree(f"app data/audiobooks/{instance.text.lower()}")
+
+        with open(r"app data/downloaded_audiobooks.dat", "rb+") as file_object:
+            downloaded_audiobooks = []
+            try:
+                while True:
+                    downloaded_audiobooks.append(pickle.load(file_object))
+            except EOFError:
+                pass
+
+        with open(r"app data/downloaded_audiobooks.dat", "wb") as file:
+                for i in downloaded_audiobooks:
+                    if i != instance.text.lower():
+                        pickle.dump(i, file)
+
         MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.remove_widget(instance)
+
 
     def callback(self, x):
 
@@ -518,28 +545,24 @@ class MenuScreen(MDScreen):
                 screen_accessed.gif_source = 'assets/images/catplaying.zip'
         
         else:
-
             self.show_download_list()
 
-    def add_card(self):
-
-        if not MDApp.get_running_app().screens.get_screen('menuscreen').ids.download_list.children:
-            print(MDApp.get_running_app().screens.get_screen('menuscreen').ids)
-
-            # self.manager.get_screen('menuscreen').ids.download_list.add_widget(MagicCard())
 
     def show_download_list(self, *kwargs):
 
         already_downloaded_audiobooks = []
+
         if os.path.isfile("app data/downloaded_audiobooks.dat"):
             
             with (open("app data/downloaded_audiobooks.dat", "rb")) as openfile:
-                while True:
-                    try:
+                
+                try:
+                    while True:
                         already_downloaded_audiobooks.append(pickle.load(openfile))
-                    except EOFError:
-                        break
-        print(already_downloaded_audiobooks)
+                except EOFError:
+                    pass
+
+    
         dialog_items = []
         
         for i in self.dict_book_link.keys():
@@ -676,6 +699,7 @@ class MenuScreen(MDScreen):
         
         self.thread = Thread(target=self.thread_pool_download_function, args=(complete_url_list_with_filepath, self.mdlist_items))
         # run the thread
+        self.thread.setDaemon(True)
         self.thread.start()
 
         self.downloaded_audiobooks = []
@@ -704,14 +728,22 @@ class MenuScreen(MDScreen):
                             icon_color=utils.get_color_from_hex(colors['Green']['700'])
                          )
                     )
-      
-        if self.selected_books == self.downloaded_audiobooks:
+
+        if set(self.selected_books) == set(self.downloaded_audiobooks):
             with open(r"app data/downloaded_audiobooks.dat", "ab") as file:
                 for i in self.selected_books:
-                    pickle.dump(i, file)
+                    MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.add_widget(
+                        SwipeToDeleteItem(text=f"{i}".title(), secondary_text=f"{self.dict_book_link[i][0]}", source=f"{self.dict_book_link[i][1]}", 
+                        md_bg_color=(1,2,1,1 ))
+                    )
 
-            Clock.schedule_once(Clock.unschedule(self.check_downloaded_status), 1)
+                    pickle.dump(i, file)
             
+            self.stop_scheduled_function()
+
+
+    def stop_scheduled_function(self, *args):
+        Clock.unschedule(self.check_downloaded_status)
 
     
     def thread_pool_download_function(self, complete_url_list_with_filepath, mdlist_items):
@@ -787,20 +819,18 @@ class MenuScreen(MDScreen):
             else:
                 for i in range(5,0,-1):
                     req_label_button_widget.text = "[font=assets/fonts/try4.ttf]Download Finished! [/font]" + f"[b]{100.0}%[/b]" + f"\n[font=assets/fonts/try4.ttf][i]This Dialog box will self close in[/i][/font] [b]{i}[/b]"
-                
-                    time.sleep(1)
-
+            
                 download_dialog.dismiss()
 
-                
-                # import threading
-                # print(threading.active_count())
-                # #using an exec statement to stop the threading
-                # if self.thread.is_set():
-                #     return
+            
                 
         with ThreadPoolExecutor() as executor:
             executor.map(download_file, complete_url_list_with_filepath)
+
+
+    def load_audiobook(self, instance):
+        # self.manager.current = "playscreen"
+        pass
         
     
 
@@ -844,9 +874,20 @@ class MainApp(MDApp):
         
         self.dict_book_link = yaml.safe_load(returned_response.content )
     
-        for i in range(20):
+        downloaded_audiobook_list = []
+
+        file = "app data/downloaded_audiobooks.dat"
+        if os.path.isfile(file): 
+            with open(file, "rb") as file_object:
+                try:
+                    while True:
+                        downloaded_audiobook_list.append(pickle.load(file_object))
+                except EOFError:
+                    pass
+
+        for i in downloaded_audiobook_list:
             MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.add_widget(
-                SwipeToDeleteItem(text=f"One-line item {i}",
+                SwipeToDeleteItem(text=f"{i}".title(), secondary_text=f"{self.dict_book_link[i][0]}", source=f"{self.dict_book_link[i][1]}", 
                 md_bg_color=(1,2,1,1 ))
             )
 
