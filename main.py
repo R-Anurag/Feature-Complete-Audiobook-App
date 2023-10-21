@@ -9,16 +9,22 @@ from kivymd.color_definitions import colors
 from kivy.core.audio import SoundLoader
 from kivymd.uix.slider import MDSlider
 from kivy import utils
+from kivymd.uix.menu import MDDropdownMenu
 from kivymd.color_definitions import colors
 from kivymd.uix.relativelayout import MDRelativeLayout
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.behaviors import MagicBehavior
 from kivymd.uix.card import MDCard
-from kivymd.uix.list import TwoLineAvatarIconListItem, ILeftBody
+from kivymd.uix.list import TwoLineAvatarIconListItem, OneLineAvatarIconListItem, IconLeftWidget, IconRightWidget
 from kivymd.uix.dialog import MDDialog
 # from kivy.utils import platform
-import os
+from kivy.animation import Animation
+from kivy.uix.scrollview import ScrollView
+from kivymd.uix.floatlayout import MDFloatLayout
+from kivy.core.text import Label as CoreLabel
 import shutil
 import yaml
+import time
 from kivymd.uix.button import MDRectangleFlatIconButton, MDRaisedButton, MDIconButton
 import requests
 from concurrent.futures import ThreadPoolExecutor
@@ -39,16 +45,18 @@ from kivy.metrics import dp
 import kivymd.material_resources as m_res
 import pickle
 
-# Checking the device platform to manage the download directory
 
-# if platform == 'android':
-#     from android.storage import primary_external_storage_path
-#     dir = primary_external_storage_path()
-#     download_dir_path = os.path.join(dir, 'Download')
-# else:
-#     download_dir_path = ''
+
+# Changing the audioplayer library since the default audio_sdl2 does not provide seek operation
+
+import os
+from kivy.config import Config
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+os.environ['KIVY_AUDIO'] = 'ffpyplayer'
     
 # ================================================================= 
+
+
 
 
 KV = '''
@@ -57,9 +65,50 @@ KV = '''
 #: import SwapTransition kivy.uix.screenmanager.SwapTransition
 
 
+<MenuHeader>
+    orientation: "vertical"
+    adaptive_size: True
+    padding: "4dp"
+
+    MDBoxLayout:
+        spacing: "12dp"
+        adaptive_size: True
+
+        MDIconButton:
+            icon: "bed-clock"
+            theme_icon_color: "Custom"
+            icon_color: '#FFFFFF'
+            pos_hint: {"center_y": .5}
+
+        MDLabel:
+            markup: True
+            text: "[b]Stop audio in[/b]"
+            theme_text_color: "Custom"
+            text_color: '#FFFFFF'
+            font_name: "DejaVuSans"
+            adaptive_size: True
+            pos_hint: {"center_y": .5}
+
+
+<Marquee>:
+    StencilView:
+        id: sten
+        pos: root.pos
+        size_hint: None, None
+        size: root.size
+        Image:
+            id: label
+            texture: root.texture
+            pos: root.pos
+            size_hint: None, None
+            size: self.texture_size
+             
+            
 <SwipeToDeleteItem>:
     size_hint_y: None
     height: content.height
+    type_swipe: "hand"
+    on_swipe_complete: app.get_running_app().screens.get_screen('menuscreen').remove_item(root)
 
 
     MDCardSwipeLayerBox:
@@ -69,9 +118,8 @@ KV = '''
         MDIconButton:
             icon: "trash-can"
             theme_icon_color: "Custom"
-            icon_color: 1,1,1,0.6
+            icon_color: 1,1,1,0.8
             pos_hint: {"center_y": .5}
-            on_release: app.get_running_app().screens.get_screen('menuscreen').remove_item(root)
 
     MDCardSwipeFrontBox:
         md_bg_color: 1,1,1,0.8
@@ -85,7 +133,7 @@ KV = '''
             _no_ripple_effect: True
             # bg_color: utils.get_color_from_hex(colors['Purple']['300'])
             on_release: 
-                app.get_running_app().screens.get_screen('menuscreen').load_audiobook(root)
+                app.get_running_app().screens.get_screen('menuscreen').insert_audiobook_parts(root)
                 app.root.transition = SwapTransition()
                 app.root.current = 'playscreen'
 
@@ -102,6 +150,7 @@ KV = '''
         size:self.image_ratio*root.height,root.height/1.5
         mipmap: True 
         pos_hint: {'center_x':0.1, 'center_y': 0.5}
+        disabled: True
      
     MDCheckbox:
         id: checkbox
@@ -268,37 +317,113 @@ MDScreenManager:
 
 <PlayScreen>
     name: 'playscreen'
-    bg_source: 'assets/images/dayreading.png'
-
     canvas.before:
+        Color:
+            rgba: eval(f"utils.get_color_from_hex(colors['DeepPurple']['A700'])")
         Rectangle:
             pos: self.pos
             size: self.size
-            source: self.bg_source
         
+    
     MDFloatLayout:
         id: playerpart
-        size_hint: 0.9, 0.8
-        pos_hint: {"center_x": .5, "center_y": .6}
+        size_hint: 1, 0.8
+        pos_hint: {"center_x": .5, "center_y": .58}
         orientation: 'horizontal'
+
+        MagicCard:
+            padding: "2dp"
+            ripple_behavior: False
+            orientation: "horizontal"
+            size_hint: (1, .07)
+            focus_behavior: False
+            pos_hint: {"center_x": .5, "center_y": 1}
+            md_bg_color: (0, 0, 0, 0.25)
+
+        MDLabel:
+            id: top_bar_heading
+            text: ""
+            font_size: 14
+            font_name: 'DejaVuSans'
+            halign: "center"
+            # theme_text_color: "Hint"
+            theme_text_color: "Custom"
+            text_color: 1,1,1,1
+            pos_hint: {"center_x": 0.5, "center_y": 1}
+
+        MDLabel:
+            id: top_bar_sub_heading
+            text: ""
+            font_size: 10
+            font_name: 'DejaVuSans'
+            halign: "center"
+            # theme_text_color: "Hint"
+            theme_text_color: "Custom"
+            text_color: 1,1,1,0.8
+            pos_hint: {"center_x": 0.5, "center_y": 0.98}
+
+                
+        MDIconButton:
+            id: sleep_timer_button
+            icon: "power-sleep"
+            icon_size: "22sp" 
+            pos_hint: {"center_x": 0.9, "center_y": 0.99}
+            theme_icon_color: "Custom"
+            icon_color: 1,1,1,1
+            on_release:
+                app.sleep_menu.open()
+
+        
+        MDIconButton:
+            icon: "chevron-down"
+            icon_size: "18sp" 
+            pos_hint: {"center_x": 0.5, "center_y": 0.96}
+            theme_icon_color: "Custom"
+            icon_color: (0, 0, 0, 0.25)
+            padding: "10sp"
+            radius: [0, 0, 64, 64]
+            on_release:
+                app.get_running_app().screens.get_screen('playscreen').audiobook.stop()
+                self.manager.current = 'menuscreen'
+            
 
         MagicCard:
             radius: [10, ]
             padding: "2dp"
-            ripple_behavior: True
-            elevation: 10
+            ripple_behavior: False
             orientation: "vertical"
-            size_hint: (.9, .8)
+            size_hint: (.85, .75)
             focus_behavior: False
-            pos_hint: {"center_x": .5, "center_y": .45}
-            md_bg_color: (0, 0, 0, 0.1)
+            pos_hint: {"center_x": .5, "center_y": .5}
+            md_bg_color: (0, 0, 0, 0.35)
 
-        FitImage:
-            size_hint: (0.80, 0.5)
-            source: "assets/images/nightreading.jpg"
+        AsyncImage:
+            id: album_picture
+            size_hint: (0.7, 0.41)
+            source: ""
             radius: (6, 6, 6, 6)
-            pos_hint: {"center_x": .5, "center_y": .55}
-        
+            pos_hint: {"center_x": .5, "center_y": .63}
+
+        MDLabel:
+            id: audiobook_part_name
+            text: ""
+            font_size: 18
+            font_name: 'DejaVuSans'
+            halign: "left"
+            # theme_text_color: "Hint"
+            theme_text_color: "Custom"
+            text_color: 1,1,1,1
+            pos_hint: {"center_x": .62, "center_y": .38}
+
+        Marquee:
+            id: audiobook_album_name
+            text: ''
+            font_name: 'DejaVuSans'
+            duration: 7
+            padding: 10
+            pos_hint: {'center_x': 0.5, 'center_y': 0.82}
+            size_hint_x: 0.76
+            
         MySlider:
             id: slider
             color: (1, 1, 1, 1)
@@ -308,21 +433,22 @@ MDScreenManager:
             sound: None
             max: 0
             value: 0
-            pos_hint: {'center_x': 0.50, 'center_y': 0.26}
-            size_hint: (0.88, 0.1)        
+            pos_hint: {'center_x': 0.50, 'center_y': 0.30}
+            size_hint: (0.85, 0.1)        
             hint: True
             track: True
-            track_color_active: (1, 0, 0, 1)
+            track_color_active: utils.get_color_from_hex(colors['Purple']['700'])
             track_color_inactive: (1,0,1,1)  
 
         MDBoxLayout:
             orientation: "horizontal"
             padding: (0,8,0,0)
-            size_hint: 0.8, None
+            size_hint: 0.76, None
             height: self.minimum_height
-            pos_hint: {'center_x': 0.50, 'center_y': 0.23}
+            pos_hint: {'center_x': 0.50, 'center_y': 0.27}
 
             MDLabel:
+                id: sound_pos_label
                 text: "0.0"
                 font_size: 14
                 halign: "left"
@@ -332,6 +458,7 @@ MDScreenManager:
 
             
             MDLabel:
+                id: sound_length_label
                 text: "1.0"
                 font_size: 14
                 halign: "right"
@@ -340,8 +467,8 @@ MDScreenManager:
                 text_color: 1,1,1,1
             
         MDFloatLayout:
-            size_hint: 0.8, None
-            pos_hint: {'center_x': 0.50, 'center_y': 0.25}
+            size_hint: 0.76, None
+            pos_hint: {'center_x': 0.50, 'center_y': 0.28}
             
             MDIconButton:
                 icon: "rewind-10"
@@ -349,15 +476,19 @@ MDScreenManager:
                 pos_hint: {'center_x': 0.30, 'center_y': 0}
                 theme_icon_color: "Custom"
                 icon_color: 1,1,1,1
+                on_release:
+                    self.parent.parent.parent.audiobook.seek(self.parent.parent.parent.audiobook.get_pos() - 10) if self.parent.parent.parent.audiobook.get_pos() > 0.1 else self.parent.parent.parent.audiobook.get_pos()
+                    #note that the else part just loses the value and is done just to complete the if else structure whichw as necessary
 
             MDIconButton:
+                id: play_pause_button
                 icon: "play-circle"
                 icon_size: "48sp" 
                 pos_hint: {'center_x': 0.50, 'center_y': 0}
                 theme_icon_color: "Custom"
                 icon_color: 1,1,1,1
                 on_release:
-                    self.icon = "pause-circle" if self.icon == "play-circle" else "play-circle"
+                    self.parent.parent.parent.play_pause()
 
 
             MDIconButton:
@@ -366,40 +497,41 @@ MDScreenManager:
                 pos_hint: {'center_x': 0.70, 'center_y': 0}
                 theme_icon_color: "Custom"
                 icon_color: 1,1,1,1 
+                on_release:
+                    self.parent.parent.parent.audiobook.seek(self.parent.parent.parent.audiobook.get_pos() + 10) if self.parent.parent.parent.audiobook.get_pos() > 0.1 else 0
+                    #note that the else part is done just to complete the if else structure whichw as necessary
             
             MDIconButton:
-                icon: "replay"
+                icon: "skip-previous"
+                theme_icon_color: "Custom"
+                icon_color: utils.get_color_from_hex(colors['Gray']['100'])
                 icon_size: "28sp"  
                 pos_hint: {'center_x': 0.05, 'center_y': 0}
-                theme_icon_color: "Custom"
-                icon_color: 1,1,1,1 
-
+                on_release:
+                    self.parent.parent.parent.load_audiobook(int(audiobook_part_name.text[audiobook_part_name.text.index('Part')+5])-1) if int(audiobook_part_name.text[audiobook_part_name.text.index('Part')+5]) > int(list(app.get_running_app().screens.get_screen('menuscreen').dict_book_link[audiobook_part_name.text[:audiobook_part_name.text.index(':')].lower()][2].keys())[0].replace('part','')) else 0
+                    
             MDIconButton:
-                icon: "repeat"
+                icon: "skip-next"
                 theme_icon_color: "Custom"
                 icon_color: utils.get_color_from_hex(colors['Gray']['100'])
                 icon_size: "28sp"  
                 pos_hint: {'center_x': 0.95, 'center_y': 0}
                 on_release:
-                    self.icon_color = utils.get_color_from_hex(colors['Green']['500']) if self.icon_color == utils.get_color_from_hex(colors['Gray']['100']) else utils.get_color_from_hex(colors['Gray']['100'])
-                                                                 
-                
+                    self.parent.parent.parent.load_audiobook(int(audiobook_part_name.text[audiobook_part_name.text.index('Part')+5:])+1) if int(audiobook_part_name.text[audiobook_part_name.text.index('Part')+5:]) < int(list(app.get_running_app().screens.get_screen('menuscreen').dict_book_link[audiobook_part_name.text[:audiobook_part_name.text.index(':')].lower()][2].keys())[-1].replace('part','')) else 0
+                    
+
     
     MDFloatLayout:
-        MDIconButton:
-            icon: "lightbulb-on"
-            icon_size: "20sp"   
-            theme_icon_color: "Custom"
-            icon_color: utils.get_color_from_hex(colors['Lime']['500'])  
-            md_bg_color: 0, 0, 0, 0.3
-            pos_hint: {"center_x": .9, "center_y": .05}
-            on_release:
-                self.icon = "lightbulb-off-outline" if self.icon == "lightbulb-on" else "lightbulb-on"
-                self.icon_color = utils.get_color_from_hex(colors['Gray']['500']) if self.icon_color == utils.get_color_from_hex(colors['Lime']['500']) else utils.get_color_from_hex(colors['Lime']['500']) 
-                app.switch_theme_style()
-                self.parent.parent.bg_source = 'assets/images/nightreading.jpg' if self.parent.parent.bg_source == 'assets/images/dayreading.png' else "assets/images/dayreading.png"
-
-
+        MDScrollView:
+            size_hint: (0.85, 0.2)
+            pos_hint: {"center_x": 0.5, "center_y": 0.15} 
+            effect_cls: "ScrollEffect"
+            radius: [10, ]
+            MDList:
+                id: md_list_2
+                radius: [10, ]
+                md_bg_color: (0,0,0,0.35)
+                padding: 0
                 
 
 '''
@@ -432,6 +564,61 @@ class ListItemWithCheckbox(TwoLineAvatarIconListItem):
 class MagicCard(MagicBehavior, MDCard):
     pass
 
+class MenuHeader(MDBoxLayout):
+    '''An instance of the class that will be added to the menu header.'''
+
+class Marquee(MDFloatLayout):
+    texture = ObjectProperty()
+    text = StringProperty()
+    duration = NumericProperty(2)
+    font_name = StringProperty("Consolas")
+    font_size = NumericProperty(12)
+    bold = BooleanProperty(False)
+    italic = BooleanProperty(False)
+    padding = NumericProperty(0)
+
+    def __init__(self, **kwargs):
+        super(Marquee, self).__init__(**kwargs)
+        self.anim = None
+        self.x_original = None
+        fbind = self.fbind
+        redraw = self.redraw
+        fbind('text', redraw)
+        fbind('duration', redraw)
+        fbind('font_name', redraw)
+        fbind('font_size', redraw)
+        fbind('bold', redraw)
+        fbind('italic', redraw)
+        fbind('padding', redraw)
+
+    def on_x(self, *args):
+        self.x_original = self.x
+        Clock.schedule_once(self.redraw)
+
+    def redraw(self, *args):
+        if self.x_original is None:
+            return
+        if self.text == '':
+            self.texture = None
+            return
+        label = CoreLabel(text=self.text, font_name=self.font_name, font_size=self.font_size,
+                          bold=self.bold, italic=self.italic, padding=self.padding)
+        label.refresh()
+        self.texture = label.texture
+        Clock.schedule_once(self.do_anim)
+
+    def do_anim(self, *args):
+        if self.anim is not None:
+            self.anim.cancel(self.ids.label)
+            self.anim = None
+        self.ids.label.x = self.x_original
+        x_end = self.ids.label.x - self.ids.label.width
+        self.anim = Animation(x=x_end, duration=self.duration)
+        self.anim.bind(on_complete=self.do_anim)
+        self.anim.start(self.ids.label)
+
+
+
 class MySlider(MDSlider):
     sound = ObjectProperty(None)
 
@@ -445,7 +632,7 @@ class MySlider(MDSlider):
 
             # if sound is stopped, restart it
             if self.sound.state == 'stop':
-                MDApp.get_running_app().screens.get_screen('playscreen').start_play()
+                MDApp.get_running_app().screens.get_screen('playscreen').play_pause()
 
             # return the saved return value
             return ret_val
@@ -455,25 +642,78 @@ class MySlider(MDSlider):
 
 class PlayScreen(MDScreen):
 
-    def on_enter(self, *args):
-         self.a = SoundLoader.load('test.mp3')
-         self.updater = None
-         self.start_play()
+    def on_pre_enter(self, *args):
+        self.load_audiobook(1)         
+
+    def load_audiobook(self, part_number, *args):
+        # Adding a try except block since this function is called every single time any of the parts are pressed to play
+        try:
+            self.audiobook.stop()
+        except AttributeError:
+            pass
+
         
-    def start_play(self, *args):
-        # play the sound
-        self.a.play()
+        self.audiobook = SoundLoader.load(f"app data/audiobooks/{MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook}/part{part_number}.mp3")
+
+        self.playscreen_ids = MDApp.get_running_app().screens.get_screen('playscreen').ids
+        self.slider = self.playscreen_ids.slider
+        self.playscreen_ids.album_picture.source = MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][1]
+        self.playscreen_ids.audiobook_album_name.text = MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0]
+        self.playscreen_ids.audiobook_part_name.text = MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook.title() + f": Part-{part_number}"
+        self.playscreen_ids.top_bar_heading.text = MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0].replace(MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0][MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0].index('by'):],'')
+        self.playscreen_ids.top_bar_sub_heading.text = MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook.title() + f": Part-{part_number}"
+
+
+        self.slider.sound = self.audiobook
+        self.slider.max = self.audiobook.length
+
+        self.playscreen_ids.sound_length_label.text = time.strftime("%H:%M:%S", time.gmtime(self.audiobook.length))
+        
+        self.updater = None
+        self.paused = False     
+
+        self.audiobook_part_selected = [i for i in MDApp.get_running_app().screens.get_screen('playscreen').ids.md_list_2.children if int(i.text.lower().replace("part-","").strip()) == part_number][0]
+        
+        MDApp.get_running_app().screens.get_screen('menuscreen').part_highlight(self.audiobook_part_selected)
+        
+        MDApp.get_running_app().screens.get_screen('playscreen').ids.md_list_2.parent.scroll_to(self.audiobook_part_selected)
+
+        self.play_pause()
+
+
+    def play_pause(self, *args):
+
         if self.updater is None:
             # schedule updates to the slider
             self.updater = Clock.schedule_interval(self.update_slider, 0.5)
 
-    def update_slider(self, dt):
-        # update slider
+        if self.paused == True:
+            self.audiobook.seek(self.stop_position)
+            self.audiobook.play()
+            self.playscreen_ids.play_pause_button.icon = "play-circle"
+            self.paused = False
+        elif self.paused == False:
+            if self.audiobook.state == "stop":
+                self.audiobook.play()
+                self.playscreen_ids.play_pause_button.icon = "pause-circle"
+            elif self.audiobook.state == "play":
+                self.stop_position = self.audiobook.get_pos()
+                self.audiobook.stop()
+                self.playscreen_ids.play_pause_button.icon = "play-circle"
+                self.paused = True
+            
 
+    def update_slider(self, *args):
+        # update slider
+        self.slider.value = self.audiobook.get_pos()
+        # updating the sound position label as well here
+        self.playscreen_ids.sound_pos_label.text = time.strftime("%H:%M:%S", time.gmtime(self.audiobook.get_pos()))
         # if the sound has finished, stop the updating
-        if self.a.state == 'stop':
+        if self.audiobook.state == 'stop' and self.updater != None:            
             self.updater.cancel()
             self.updater = None
+
+
 
 
 
@@ -828,10 +1068,25 @@ class MenuScreen(MDScreen):
             executor.map(download_file, complete_url_list_with_filepath)
 
 
-    def load_audiobook(self, instance):
-        # self.manager.current = "playscreen"
-        pass
-        
+    def insert_audiobook_parts(self, instance):
+
+        self.selected_audiobook = instance.text.lower()
+
+        for i in self.dict_book_link[instance.text.lower()][2]:
+            MDApp.get_running_app().screens.get_screen('playscreen').ids.md_list_2.add_widget(
+            OneLineAvatarIconListItem(IconLeftWidget(icon="headphones", theme_icon_color="Custom",icon_color=(1,1,1,1)), text=f"{i}".replace('part','part-').title(), theme_text_color="Custom",text_color=(1,1,1,1), radius=[10, ]
+            # , bg_color = (0,0,0,0.35)
+            ,on_press=self.part_highlight, 
+            on_release=lambda x: MDApp.get_running_app().screens.get_screen('playscreen').load_audiobook(int(x.text.replace('Part-','').lower()))
+            )
+            )
+            
+
+    def part_highlight(self, instance):
+        for i in instance.parent.parent.children[0].children:
+            i.bg_color = (0,0,0,0)
+        else:
+            instance.bg_color = utils.get_color_from_hex(colors['Purple']['A700'])
     
 
 sm = MDScreenManager()
@@ -841,35 +1096,11 @@ sm.add_widget(PlayScreen(name='playscreen'))
 
 class MainApp(MDApp):
 
-
-    def on_stop(self):
-        # The Kivy event loop is about to stop, set a stop signal;
-        # otherwise the app window will close, but the Python process will
-        # keep running until all secondary threads exit.
-        try:
-            MDApp.get_running_app().screens.get_screen('menuscreen').stop.set()
-        except:
-            pass        
-
-
-    def build(self):
-        self.theme_cls.theme_style_switch_animation = True
-        self.theme_cls.theme_style_switch_animation_duration = 0.8
-        self.theme_cls.theme_style = "Light"
-
-
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         self.screens = Builder.load_string(KV)
-        return self.screens
-    
-    
-    def switch_theme_style(self):
-        self.theme_cls.theme_style = (
-            "Dark" if self.theme_cls.theme_style == "Light" else "Light"
-        )
-   
-    def on_start(self):
-         
+
         returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml',headers = {'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}) 
         
         self.dict_book_link = yaml.safe_load(returned_response.content )
@@ -890,5 +1121,60 @@ class MainApp(MDApp):
                 SwipeToDeleteItem(text=f"{i}".title(), secondary_text=f"{self.dict_book_link[i][0]}", source=f"{self.dict_book_link[i][1]}", 
                 md_bg_color=(1,2,1,1 ))
             )
+
+        menu_items = [
+            {
+                "viewclass": "OneLineListItem",
+                "height": dp(40),
+                "text": "[size=14][font=DejaVuSans]" + [f"{i} minutes" if i != 'End of Episode' else i][0] + "[/font][/size]",
+                "theme_text_color": "Custom",
+                "text_color": (1,1,1,1),
+                # "bg_color": (0,0,0,0.35),
+                "on_release": lambda x=i: self.sleep_menu_callback(x),
+            } for i in [5, 10, 15, 30, 45, 'End of Episode'] 
+        ]
+
+        self.sleep_menu = MDDropdownMenu(
+            header_cls=MenuHeader(),
+            caller=self.screens.get_screen('playscreen').ids.sleep_timer_button,
+            items=menu_items,
+            width_mult=4,
+            elevation=1,
+            # max_height=dp(112),
+            # border_margin=dp(24),
+            radius=[24, 4, 24, 4],
+            background_color=utils.get_color_from_hex(colors['Purple']['A700'])
+        )
+    
+    def sleep_menu_callback(self, instance):
+        if instance != 'End of Episode':
+            print('sleep function called ')
+            # Clock.schedule_once(self.screens.get_screen('playscreen').audiobook.stop(), instance*60)
+        
+
+
+    def on_stop(self):
+        try:
+            self.screens.get_screen('playscreen').audiobook.unload()
+        except AttributeError:
+            pass        
+
+
+    def build(self):
+        self.theme_cls.theme_style_switch_animation = True
+        self.theme_cls.theme_style_switch_animation_duration = 0.8
+        self.theme_cls.theme_style = "Light"
+
+        return self.screens
+    
+    
+    def switch_theme_style(self):
+        self.theme_cls.theme_style = (
+            "Dark" if self.theme_cls.theme_style == "Light" else "Light"
+        )
+   
+    def on_start(self):
+        pass 
+        
 
 MainApp().run()
