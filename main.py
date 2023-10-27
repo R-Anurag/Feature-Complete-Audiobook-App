@@ -262,10 +262,160 @@ KV = '''
 
 
 MDScreenManager:
+    WelcomeScreen
     MenuScreen
     PlayScreen
     
 
+<WelcomeScreen>
+    name: 'welcomescreen'
+    MDCarousel:
+        id: carousel
+        anim_move_duration: 0.5
+        scroll_timeout: 0
+        MDFloatLayout:
+            FitImage:
+                source: "assets/images/on_boarding_1.jpg"
+                pos_hint: {"center_x":0.5, "center_y":0.7}
+                size_hint: (0.8, 0.6)
+            
+    
+            MDLabel:
+                text: "No more sitting through boring textbooks"
+                size_hint_x: 0.5
+                pos_hint: {"center_x": 0.34, "center_y": 0.32}
+                font_name: "assets/fonts/Poppins-Bold.ttf"
+                font_size: "14sp"
+                theme_text_color: "Custom"
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
+
+            MDLabel:
+                text: "Lorem Ipsum is simply some dummy text of the printing and typesetting industry"
+                size_hint_x: 0.8
+                pos_hint: {"center_x": 0.49, "center_y": 0.22}
+                font_name: "assets/fonts/Poppins-Medium.ttf"
+                font_size: "14sp"
+                theme_text_color: "Custom"
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
+
+        MDFloatLayout:
+            FitImage:
+                source: "assets/images/on_boarding_2.jpg"
+                pos_hint: {"center_x":0.5, "center_y":0.7}
+                size_hint: (0.8, 0.6)
+            
+            MDLabel:
+                text: "Seamless listening session"
+                size_hint_x: 0.5
+                pos_hint: {"center_x": 0.34, "center_y": 0.32}
+                font_name: "assets/fonts/Poppins-Bold.ttf"
+                font_size: "14sp"
+                theme_text_color: "Custom"
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
+
+            MDLabel:
+                text: "Lorem Ipsum is simply some dummy text of the printing and typesetting industry"
+                size_hint_x: 0.8
+                pos_hint: {"center_x": 0.49, "center_y": 0.22}
+                font_name: "assets/fonts/Poppins-Medium.ttf"
+                font_size: "14sp"
+                theme_text_color: "Custom"
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
+
+        MDFloatLayout:
+            FitImage:
+                source: "assets/images/on_boarding_3.jpg"
+                pos_hint: {"center_x":0.5, "center_y":0.7}
+                size_hint: (0.8, 0.6)
+            
+            MDLabel:
+                text: "No frustrating ads or promotions"
+                size_hint_x: 0.5
+                pos_hint: {"center_x": 0.34, "center_y": 0.32}
+                font_name: "assets/fonts/Poppins-Bold.ttf"
+                font_size: "14sp"
+                theme_text_color: "Custom"
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
+
+            MDLabel:
+                text: "Lorem Ipsum is simply some dummy text of the printing and typesetting industry"
+                size_hint_x: 0.8
+                pos_hint: {"center_x": 0.49, "center_y": 0.22}
+                font_name: "assets/fonts/Poppins-Medium.ttf"
+                font_size: "14sp"
+                theme_text_color: "Custom"
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
+
+    MDRelativeLayout:
+        size_hint: None, None
+        size: self.parent.width, self.parent.height
+        pos: 0, 0
+
+        MDRectangleFlatButton:
+            icon: "chevron-left"
+            text: "Previous"
+            md_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
+            theme_text_color: "Custom"
+            text_color: (1,1,1,1)
+            line_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
+            padding: [12,4,4,4]
+            pos: dp(20), self.parent.parent.height/14
+            on_release: self.parent.parent.load(self.text.lower())
+            IconLeftWidget:
+                icon: "chevron-left"
+                theme_icon_color: "Custom"
+                icon_color: (1,1,1,1)
+                pos_hint: {"center_x":-0.7, "center_y":0.5}
+
+        MDRectangleFlatButton:
+            icon_size: dp(2)
+            text: "Next"
+            md_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
+            theme_text_color: "Custom"
+            text_color: (1,1,1,1)
+            line_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
+            padding: [4,4,12,4]
+            pos: self.parent.parent.width - (self.width +dp(20)), self.parent.parent.height/14
+            on_release: self.parent.parent.load(self.text.lower())
+            IconRightWidget:
+                icon: "chevron-right"
+                theme_icon_color: "Custom"
+                icon_color: (1,1,1,1)
+                pos_hint: {"center_x":0.7, "center_y":0.5}
+
+
+    MDRelativeLayout:
+        id: swipe_dots
+        size_hint: None, None
+        size: self.parent.width, self.parent.height
+        pos: 0, 0
+
+        MDIconButton:
+            icon: "circle"
+            theme_icon_color: "Custom"
+            icon_color: [0,0,0,0.6]
+            icon_size: "8sp"
+            disabled: True
+            pos: self.parent.parent.width/15, self.parent.parent.height/8
+        
+        MDIconButton:
+            icon: "circle"
+            theme_icon_color: "Custom"
+            icon_color: [0,0,0,0.6]
+            icon_size: "8sp"
+            disabled: True
+            pos: self.parent.parent.width/15 + 30, self.parent.parent.height/8
+            
+        MDIconButton:
+            icon: "circle"
+            theme_icon_color: "Custom"
+            icon_color: [0,0,0,0.6]
+            icon_size: "8sp"
+            disabled: True
+            pos: self.parent.parent.width/15 + 60, self.parent.parent.height/8
+
+
+            
 <MenuScreen>
     name: 'menuscreen'
     audiobook_primary_text: 'No audiobooks found'
@@ -791,6 +941,16 @@ class PlayScreen(MDScreen):
 
 
 
+class WelcomeScreen(MDScreen):
+
+    def load(self, direction, *args):
+        if direction == 'previous':
+            self.ids.carousel.load_previous()
+        elif direction == 'next':
+            self.ids.carousel.load_next(mode='next')
+        print(self.ids.carousel.index)
+
+
 
 
 class MenuScreen(MDScreen):
@@ -896,6 +1056,7 @@ class MenuScreen(MDScreen):
                     icon='close',
                     md_bg_color = utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
                     theme_text_color="Custom",
+                    theme_icon_color="Custom",
                     icon_color=(1,1,1,1),
                     text_color=(1,1,1,1),
                     line_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette]['700']),
@@ -909,6 +1070,7 @@ class MenuScreen(MDScreen):
                     text="[font=assets/fonts/Aclonica.ttf][size=14][b]OK[/b][/size][/font]",
                     md_bg_color = utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
                     theme_text_color="Custom",
+                    theme_icon_color="Custom",
                     icon_color=(1,1,1,1),
                     text_color=(1,1,1,1),
                     line_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette]['700']),
@@ -939,7 +1101,7 @@ class MenuScreen(MDScreen):
         self.downloading_size_dict = {}
         for i in self.selected_books:
 
-            self.downloading_size_dict[f"{i}_full_size"] = int(self.dict_book_link[i][3].replace('MB', ''))
+            self.downloading_size_dict[f"{i}_full_size"] = float(self.dict_book_link[i][3].replace('MB', ''))
             
             self.downloading_size_dict[f"{i}_downloaded_size"] = 0
            
@@ -994,7 +1156,7 @@ class MenuScreen(MDScreen):
                         markup=True,
                         pos_hint={'center_x':0.82, 'center_y': 0.22},
                         theme_text_color="Custom",
-                        text_color=utils.get_color_from_hex(colors['Green']['700'])
+                        text_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_dark_hue])
                     )
                 )
                 
@@ -1085,22 +1247,25 @@ class MenuScreen(MDScreen):
             filename = url_filepath_list[1]
 
             CHUNK_SIZE = 32768
-            with open(os.path.join(download_folder_path, filename)+'.mp3', "wb") as f:
-                for chunk in response.iter_content(CHUNK_SIZE):
-                    if chunk: 
+            f = open(os.path.join(download_folder_path, filename)+'.mp3', "wb") 
+            for chunk in response.iter_content(CHUNK_SIZE):
+                if chunk: 
 
-                        self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"] += len(chunk)/(1024*1024)
-                        f.write(chunk)
+                    self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"] += len(chunk)/(1024*1024)
+                    
+                    f.write(chunk)
+ 
+                    combined_downloaded_size = sum([ self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_downloaded_size") ])
 
-                        combined_downloaded_size = sum([ self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_downloaded_size") ])
+                    combined_full_size = sum([ self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_full_size") ])
 
-                        combined_full_size = sum([ self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_full_size") ])
+                    combined_download_percentage = combined_downloaded_size / combined_full_size * 100
+    
 
-                        combined_download_percentage = combined_downloaded_size / combined_full_size * 100
-     
-
-                        update_downloading_perc_label(self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"], url_filepath_list[0], combined_download_percentage, self.downloading_size_dict[f"{url_filepath_list[0].lower()}_full_size"], self.dialogx, self.mdlist_items)
-
+                    update_downloading_perc_label(self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"], url_filepath_list[0], combined_download_percentage, self.downloading_size_dict[f"{url_filepath_list[0].lower()}_full_size"], self.dialogx, self.mdlist_items)
+        
+            else:
+                f.close()
                 
 
             
@@ -1120,6 +1285,7 @@ class MenuScreen(MDScreen):
                 req_label_button_widget.text = "[font=assets/fonts/try4.ttf]Downloading... [/font]" + f"[b]{round(download_percentage,1)}%[/b]"
             else:
                 for i in range(5,0,-1):
+                    time.sleep(5)
                     req_label_button_widget.text = "[font=assets/fonts/try4.ttf]Download Finished! [/font]" + f"[b]{100.0}%[/b]" + f"\n[font=assets/fonts/try4.ttf][i]This Dialog box will self close in[/i][/font] [b]{i}[/b]"
             
                 download_dialog.dismiss()
@@ -1168,6 +1334,7 @@ class MenuScreen(MDScreen):
 
 
 sm = MDScreenManager()
+sm.add_widget(WelcomeScreen(name='welcomescreen'))
 sm.add_widget(MenuScreen(name='menuscreen'))
 sm.add_widget(PlayScreen(name='playscreen'))
 
