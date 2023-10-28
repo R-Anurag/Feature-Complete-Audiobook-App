@@ -52,16 +52,14 @@ import kivymd.material_resources as m_res
 import pickle
 
 
-
 # Changing the audioplayer library since the default audio_sdl2 does not provide seek operation
 
 import os
 from kivy.config import Config
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 os.environ['KIVY_AUDIO'] = 'ffpyplayer'
-    
-# ================================================================= 
 
+# =================================================================
 
 
 KV = '''
@@ -275,24 +273,24 @@ MDScreenManager:
         scroll_timeout: 0
         MDFloatLayout:
             FitImage:
-                source: "assets/images/on_boarding_1.jpg"
+                source: "assets/images/on_boarding_1.png"
                 pos_hint: {"center_x":0.5, "center_y":0.7}
-                size_hint: (0.8, 0.6)
-            
+                size_hint: (0.8, 0.4)
     
             MDLabel:
-                text: "No more sitting through boring textbooks"
-                size_hint_x: 0.5
-                pos_hint: {"center_x": 0.34, "center_y": 0.32}
+                text: "No more boring reading"
+                size_hint_x: 0.6
+                halign: "center"
+                pos_hint: {"center_x": 0.5, "center_y": 0.38}
                 font_name: "assets/fonts/Poppins-Bold.ttf"
-                font_size: "14sp"
+                font_size: "16sp"
                 theme_text_color: "Custom"
                 text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
 
             MDLabel:
-                text: "Lorem Ipsum is simply some dummy text of the printing and typesetting industry"
-                size_hint_x: 0.8
-                pos_hint: {"center_x": 0.49, "center_y": 0.22}
+                text: "Say goodbye to dull and unexciting reading experiences, and open the door to captivating storytelling through immersive audiobooks."
+                size_hint_x: 0.85
+                pos_hint: {"center_x": 0.5, "center_y": 0.27}
                 font_name: "assets/fonts/Poppins-Medium.ttf"
                 font_size: "14sp"
                 theme_text_color: "Custom"
@@ -300,23 +298,24 @@ MDScreenManager:
 
         MDFloatLayout:
             FitImage:
-                source: "assets/images/on_boarding_2.jpg"
+                source: "assets/images/on_boarding_2.png"
                 pos_hint: {"center_x":0.5, "center_y":0.7}
-                size_hint: (0.8, 0.6)
+                size_hint: (0.8, 0.4)
             
             MDLabel:
                 text: "Seamless listening session"
-                size_hint_x: 0.5
-                pos_hint: {"center_x": 0.34, "center_y": 0.32}
+                size_hint_x: 0.6
+                halign: "center"
+                pos_hint: {"center_x": 0.5, "center_y": 0.38}
                 font_name: "assets/fonts/Poppins-Bold.ttf"
-                font_size: "14sp"
+                font_size: "16sp"
                 theme_text_color: "Custom"
                 text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
 
             MDLabel:
-                text: "Lorem Ipsum is simply some dummy text of the printing and typesetting industry"
-                size_hint_x: 0.8
-                pos_hint: {"center_x": 0.49, "center_y": 0.22}
+                text: "Experience the delight of an uninterrupted and immersive listening session, where your audiobooks come to life in a flowing and engaging journey."
+                size_hint_x: 0.85
+                pos_hint: {"center_x": 0.5, "center_y": 0.27}
                 font_name: "assets/fonts/Poppins-Medium.ttf"
                 font_size: "14sp"
                 theme_text_color: "Custom"
@@ -324,95 +323,93 @@ MDScreenManager:
 
         MDFloatLayout:
             FitImage:
-                source: "assets/images/on_boarding_3.jpg"
+                source: "assets/images/on_boarding_3.png"
                 pos_hint: {"center_x":0.5, "center_y":0.7}
-                size_hint: (0.8, 0.6)
+                size_hint: (0.8, 0.4)
             
             MDLabel:
                 text: "No frustrating ads or promotions"
-                size_hint_x: 0.5
-                pos_hint: {"center_x": 0.34, "center_y": 0.32}
+                size_hint_x: 0.6
+                halign: "center"
+                pos_hint: {"center_x": 0.5, "center_y": 0.38}
                 font_name: "assets/fonts/Poppins-Bold.ttf"
-                font_size: "14sp"
+                font_size: "16sp"
                 theme_text_color: "Custom"
                 text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
 
             MDLabel:
-                text: "Lorem Ipsum is simply some dummy text of the printing and typesetting industry"
-                size_hint_x: 0.8
-                pos_hint: {"center_x": 0.49, "center_y": 0.22}
+                text: "Enjoy your audiobooks without the annoyance of intrusive ads or promotional interruptions."
+                size_hint_x: 0.85
+                pos_hint: {"center_x": 0.5, "center_y": 0.27}
                 font_name: "assets/fonts/Poppins-Medium.ttf"
                 font_size: "14sp"
                 theme_text_color: "Custom"
                 text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
 
     MDRelativeLayout:
+        id: start_buttons
         size_hint: None, None
         size: self.parent.width, self.parent.height
         pos: 0, 0
 
         MDRectangleFlatButton:
+            id: remove
             icon: "chevron-left"
-            text: "Previous"
+            text: "SKIP"
+            font_size: "18sp"
+            font_name: "assets/fonts/Poppins-Medium.ttf"
+            radius: [120,]
+            rounded_button: True
             md_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
             theme_text_color: "Custom"
             text_color: (1,1,1,1)
             line_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
-            padding: [12,4,4,4]
-            pos: dp(20), self.parent.parent.height/14
+            padding: [30, 20, 30, 20]
+            pos: dp(30), self.parent.parent.height/14
             on_release: self.parent.parent.load(self.text.lower())
-            IconLeftWidget:
-                icon: "chevron-left"
-                theme_icon_color: "Custom"
-                icon_color: (1,1,1,1)
-                pos_hint: {"center_x":-0.7, "center_y":0.5}
+            
 
         MDRectangleFlatButton:
-            icon_size: dp(2)
-            text: "Next"
+            text: "NEXT"
+            font_size: "18sp"
+            font_name: "assets/fonts/Poppins-Medium.ttf"
+            radius: [120,]
+            rounded_button: True
             md_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
             theme_text_color: "Custom"
             text_color: (1,1,1,1)
             line_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
-            padding: [4,4,12,4]
-            pos: self.parent.parent.width - (self.width +dp(20)), self.parent.parent.height/14
-            on_release: self.parent.parent.load(self.text.lower())
-            IconRightWidget:
-                icon: "chevron-right"
-                theme_icon_color: "Custom"
-                icon_color: (1,1,1,1)
-                pos_hint: {"center_x":0.7, "center_y":0.5}
-
+            padding: [30, 20, 30, 20]
+            pos: self.parent.parent.width - (self.width +dp(30)), self.parent.parent.height/14
+            on_release: self.parent.parent.load(self.text.lower()) 
+            on_press: app.root.current = "menuscreen" if self.text == "START" else "welcomescreen"
 
     MDRelativeLayout:
         id: swipe_dots
         size_hint: None, None
         size: self.parent.width, self.parent.height
-        pos: 0, 0
+        pos: self.width/2 - 75, self.parent.height/35
 
         MDIconButton:
             icon: "circle"
             theme_icon_color: "Custom"
-            icon_color: [0,0,0,0.6]
+            icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
             icon_size: "8sp"
-            disabled: True
-            pos: self.parent.parent.width/15, self.parent.parent.height/8
+            pos: 0, self.parent.parent.height/8
         
         MDIconButton:
             icon: "circle"
             theme_icon_color: "Custom"
             icon_color: [0,0,0,0.6]
             icon_size: "8sp"
-            disabled: True
-            pos: self.parent.parent.width/15 + 30, self.parent.parent.height/8
+            pos: 50, self.parent.parent.height/8
             
         MDIconButton:
             icon: "circle"
             theme_icon_color: "Custom"
             icon_color: [0,0,0,0.6]
             icon_size: "8sp"
-            disabled: True
-            pos: self.parent.parent.width/15 + 60, self.parent.parent.height/8
+            pos: 100, self.parent.parent.height/8
 
 
             
@@ -740,6 +737,8 @@ MDScreenManager:
 '''
 
 # for searchbar in library
+
+
 class ClickableTextFieldRound(MDRelativeLayout):
     text = StringProperty()
     hint_text = StringProperty()
@@ -755,7 +754,7 @@ class Gradient(object):
     @staticmethod
     def horizontal(*args):
         texture = Texture.create(size=(len(args), 1), colorfmt='rgba')
-        buf = bytes([ int(v * 255)  for v in chain(*args) ])  # flattens
+        buf = bytes([int(v * 255) for v in chain(*args)])  # flattens
 
         texture.blit_buffer(buf, colorfmt='rgba', bufferfmt='ubyte')
         return texture
@@ -763,7 +762,7 @@ class Gradient(object):
     @staticmethod
     def vertical(*args):
         texture = Texture.create(size=(1, len(args)), colorfmt='rgba')
-        buf = bytes([ int(v * 255)  for v in chain(*args) ])  # flattens
+        buf = bytes([int(v * 255) for v in chain(*args)])  # flattens
 
         texture.blit_buffer(buf, colorfmt='rgba', bufferfmt='ubyte')
         return texture
@@ -779,13 +778,16 @@ class ListItemWithCheckbox(TwoLineAvatarIconListItem):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._txt_right_pad = dp(10) + m_res.HORIZ_MARGINS
-    
+
+
 class IconListItem(OneLineIconListItem):
     icon = StringProperty()
     icon_color = ColorProperty()
 
+
 class MagicCard(MagicBehavior, MDCard):
     pass
+
 
 class MenuHeader(MDBoxLayout):
     icon = StringProperty()
@@ -845,7 +847,6 @@ class Marquee(MDFloatLayout):
         self.anim.start(self.ids.label)
 
 
-
 class MySlider(MDSlider):
     sound = ObjectProperty(None)
 
@@ -870,7 +871,7 @@ class MySlider(MDSlider):
 class PlayScreen(MDScreen):
 
     def on_pre_enter(self, *args):
-        self.load_audiobook(1)         
+        self.load_audiobook(1)
 
     def load_audiobook(self, part_number, *args):
         # Adding a try except block since this function is called every single time any of the parts are pressed to play
@@ -879,34 +880,41 @@ class PlayScreen(MDScreen):
         except AttributeError:
             pass
 
-        
-        self.audiobook = SoundLoader.load(f"app data/audiobooks/{MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook}/part{part_number}.mp3")
+        self.audiobook = SoundLoader.load(
+            f"app data/audiobooks/{MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook}/part{part_number}.mp3")
 
         self.playscreen_ids = MDApp.get_running_app().screens.get_screen('playscreen').ids
         self.slider = self.playscreen_ids.slider
-        self.playscreen_ids.album_picture.source = MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][1]
-        self.playscreen_ids.audiobook_album_name.text = MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0]
-        self.playscreen_ids.audiobook_part_name.text = MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook.title() + f": Part-{part_number}"
-        self.playscreen_ids.top_bar_heading.text = "[b]" + MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0].replace(MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0][MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0].index('by'):],'') + "[/b]"
-        self.playscreen_ids.top_bar_sub_heading.text = MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook.title() + f": Part-{part_number}"
-
+        self.playscreen_ids.album_picture.source = MDApp.get_running_app().screens.get_screen(
+            'menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][1]
+        self.playscreen_ids.audiobook_album_name.text = MDApp.get_running_app().screens.get_screen(
+            'menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0]
+        self.playscreen_ids.audiobook_part_name.text = MDApp.get_running_app().screens.get_screen(
+            'menuscreen').selected_audiobook.title() + f": Part-{part_number}"
+        self.playscreen_ids.top_bar_heading.text = "[b]" + MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0].replace(MDApp.get_running_app().screens.get_screen(
+            'menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0][MDApp.get_running_app().screens.get_screen('menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0].index('by'):], '') + "[/b]"
+        self.playscreen_ids.top_bar_sub_heading.text = MDApp.get_running_app().screens.get_screen(
+            'menuscreen').selected_audiobook.title() + f": Part-{part_number}"
 
         self.slider.sound = self.audiobook
         self.slider.max = self.audiobook.length
 
-        self.playscreen_ids.sound_length_label.text = time.strftime("%H:%M:%S", time.gmtime(self.audiobook.length))
-        
-        self.updater = None
-        self.paused = False     
+        self.playscreen_ids.sound_length_label.text = time.strftime(
+            "%H:%M:%S", time.gmtime(self.audiobook.length))
 
-        self.audiobook_part_selected = [i for i in MDApp.get_running_app().screens.get_screen('playscreen').ids.md_list_2.children if int(i.text.lower().replace("part-","").strip()) == part_number][0]
-        
-        MDApp.get_running_app().screens.get_screen('menuscreen').part_highlight(self.audiobook_part_selected)
-        
-        MDApp.get_running_app().screens.get_screen('playscreen').ids.md_list_2.parent.scroll_to(self.audiobook_part_selected)
+        self.updater = None
+        self.paused = False
+
+        self.audiobook_part_selected = [i for i in MDApp.get_running_app().screens.get_screen(
+            'playscreen').ids.md_list_2.children if int(i.text.lower().replace("part-", "").strip()) == part_number][0]
+
+        MDApp.get_running_app().screens.get_screen(
+            'menuscreen').part_highlight(self.audiobook_part_selected)
+
+        MDApp.get_running_app().screens.get_screen(
+            'playscreen').ids.md_list_2.parent.scroll_to(self.audiobook_part_selected)
 
         self.play_pause()
-
 
     def play_pause(self, *args):
         if self.updater is None:
@@ -927,30 +935,42 @@ class PlayScreen(MDScreen):
                 self.audiobook.stop()
                 self.playscreen_ids.play_pause_button.icon = "play-circle"
                 self.paused = True
-            
 
     def update_slider(self, *args):
         # update slider
         self.slider.value = self.audiobook.get_pos()
         # updating the sound position label as well here
-        self.playscreen_ids.sound_pos_label.text = time.strftime("%H:%M:%S", time.gmtime(self.audiobook.get_pos()))
+        self.playscreen_ids.sound_pos_label.text = time.strftime(
+            "%H:%M:%S", time.gmtime(self.audiobook.get_pos()))
         # if the sound has finished, stop the updating
-        if self.audiobook.state == 'stop' and self.updater != None:            
+        if self.audiobook.state == 'stop' and self.updater != None:
             self.updater.cancel()
             self.updater = None
-
 
 
 class WelcomeScreen(MDScreen):
 
     def load(self, direction, *args):
-        if direction == 'previous':
-            self.ids.carousel.load_previous()
-        elif direction == 'next':
+        if direction == 'skip':
+            self.ids.carousel.load_slide(self.ids.carousel.slides[2])
+            for i in self.ids.swipe_dots.children:
+                i.icon_color = (0, 0, 0, 0.6)
+            self.ids.swipe_dots.children[0].icon_color = utils.get_color_from_hex(
+                colors[MDApp.get_running_app().theme_cls.primary_palette]['500'])
+        elif direction == 'next' or direction == 'start':
             self.ids.carousel.load_next(mode='next')
-        print(self.ids.carousel.index)
 
+            if self.ids.carousel.index != 2:
+                for i in self.ids.swipe_dots.children:
+                    i.icon_color = (0, 0, 0, 0.6)
+                list(reversed(self.ids.swipe_dots.children))[self.ids.carousel.index+1].icon_color = utils.get_color_from_hex(
+                    colors[MDApp.get_running_app().theme_cls.primary_palette]['500'])
 
+            if self.ids.carousel.index == 1:
+                self.ids.start_buttons.children[1].pos = (
+                    -dp(100),  self.height/14)
+                self.ids.start_buttons.children[0].text = "START"
+                print(self.ids.carousel.index)
 
 
 class MenuScreen(MDScreen):
@@ -959,28 +979,26 @@ class MenuScreen(MDScreen):
     content_dict = DictProperty()
     icon_image_dict = DictProperty()
 
-
-    def on_enter(self, *kwargs):              
+    def on_enter(self, *kwargs):
 
         self.data = {
-                'Change Theme': [
-                    'palette',
-                    "on_release", lambda x: self.callback(x),
-                ],
-                'Add Audiobook': [
-                    'attachment-plus',
-                    "on_release", lambda x: self.callback(x),     
-                ],
-            }
-        
+            'Change Theme': [
+                'palette',
+                "on_release", lambda x: self.callback(x),
+            ],
+            'Add Audiobook': [
+                'attachment-plus',
+                "on_release", lambda x: self.callback(x),
+            ],
+        }
 
-        returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml',headers = {'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}) 
-        
-        self.dict_book_link = yaml.safe_load(returned_response.content )
+        returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml', headers={
+                                         'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'})
 
-        
+        self.dict_book_link = yaml.safe_load(returned_response.content)
+
     def remove_item(self, instance):
-        
+
         if os.path.exists(f"app data/audiobooks/{instance.text.lower()}"):
             shutil.rmtree(f"app data/audiobooks/{instance.text.lower()}")
 
@@ -993,343 +1011,350 @@ class MenuScreen(MDScreen):
                 pass
 
         with open(r"app data/downloaded_audiobooks.dat", "wb") as file:
-                for i in downloaded_audiobooks:
-                    if i != instance.text.lower():
-                        pickle.dump(i, file)
+            for i in downloaded_audiobooks:
+                if i != instance.text.lower():
+                    pickle.dump(i, file)
 
-        MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.remove_widget(instance)
-
+        MDApp.get_running_app().screens.get_screen(
+            'menuscreen').ids.md_list.remove_widget(instance)
 
     def callback(self, x):
 
         screen_accessed = MDApp.get_running_app().screens.get_screen('menuscreen')
 
         if x.icon != 'attachment-plus':
-            MDApp.get_running_app().theme_menu.caller = MDApp.get_running_app().screens.get_screen('menuscreen').ids.speed_dial.children[4]
+            MDApp.get_running_app().theme_menu.caller = MDApp.get_running_app(
+            ).screens.get_screen('menuscreen').ids.speed_dial.children[4]
             MDApp.get_running_app().theme_menu.open()
         else:
             self.show_download_list()
-
 
     def show_download_list(self, *kwargs):
 
         already_downloaded_audiobooks = []
 
         if os.path.isfile("app data/downloaded_audiobooks.dat"):
-            
+
             with (open("app data/downloaded_audiobooks.dat", "rb")) as openfile:
-                
+
                 try:
                     while True:
-                        already_downloaded_audiobooks.append(pickle.load(openfile))
+                        already_downloaded_audiobooks.append(
+                            pickle.load(openfile))
                 except EOFError:
                     pass
 
-    
         dialog_items = []
-        
+
         for i in self.dict_book_link.keys():
 
             if i not in already_downloaded_audiobooks:
-                
-                dialog_items.append(ListItemWithCheckbox(text = f'[size=14][font=DejaVuSans]{i.title()}[/font][/size]',
-                                                secondary_text=f"[size=12][font=assets/fonts/Roboto-LightItalic.ttf]{self.dict_book_link[i][0].title()}[/font][/size]",
-                                                source=self.dict_book_link[i][1],
-                                                mb_text=self.dict_book_link[i][3],
-                                                divider='Inset',   
-                                                divider_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])))
-        
-            
+
+                dialog_items.append(ListItemWithCheckbox(text=f'[size=14][font=DejaVuSans]{i.title()}[/font][/size]',
+                                                         secondary_text=f"[size=12][font=assets/fonts/Roboto-LightItalic.ttf]{self.dict_book_link[i][0].title()}[/font][/size]",
+                                                         source=self.dict_book_link[i][1],
+                                                         mb_text=self.dict_book_link[i][3],
+                                                         divider='Inset',
+                                                         divider_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])))
+
         self.dialogx = MDDialog(
             size_hint=(0.90, None),
-            md_bg_color=[1,1,1,0.7],
-            title = f"[color={colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_dark_hue]}][font=assets/fonts/try2.ttf][size=18][b]Download Audiobooks?[/b][/size][/font][/color]",
-            text = f"[color={colors[MDApp.get_running_app().theme_cls.primary_palette]['700']}][size=16][font=DejaVuSans]Select the ones you want to download[/font][/size][/color]",
-            elevation = 4,
-            radius = [20, 7, 20, 7],
-            padding = 0, 
-            type = 'confirmation',
-            auto_dismiss= False,
-            items = dialog_items,
-            buttons = [
+            md_bg_color=[1, 1, 1, 0.7],
+            title=f"[color={colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_dark_hue]}][font=assets/fonts/try2.ttf][size=18][b]Download Audiobooks?[/b][/size][/font][/color]",
+            text=f"[color={colors[MDApp.get_running_app().theme_cls.primary_palette]['700']}][size=16][font=DejaVuSans]Select the ones you want to download[/font][/size][/color]",
+            elevation=4,
+            radius=[20, 7, 20, 7],
+            padding=0,
+            type='confirmation',
+            auto_dismiss=False,
+            items=dialog_items,
+            buttons=[
                 MDRectangleFlatIconButton(
                     icon='close',
-                    md_bg_color = utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
+                    md_bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app(
+                    ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
                     theme_text_color="Custom",
                     theme_icon_color="Custom",
-                    icon_color=(1,1,1,1),
-                    text_color=(1,1,1,1),
-                    line_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette]['700']),
+                    icon_color=(1, 1, 1, 1),
+                    text_color=(1, 1, 1, 1),
+                    line_color=utils.get_color_from_hex(
+                        colors[MDApp.get_running_app().theme_cls.primary_palette]['700']),
                     text="[font=assets/fonts/Aclonica.ttf][size=14][b]CANCEL[/b][/size][/font]",
-                    padding=[4,4],
-                    on_release = lambda x: self.dialogx.dismiss()
-                    
+                    padding=[4, 4],
+                    on_release=lambda x: self.dialogx.dismiss()
+
                 ),
                 MDRectangleFlatIconButton(
                     icon='thumb-up',
                     text="[font=assets/fonts/Aclonica.ttf][size=14][b]OK[/b][/size][/font]",
-                    md_bg_color = utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
+                    md_bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app(
+                    ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
                     theme_text_color="Custom",
                     theme_icon_color="Custom",
-                    icon_color=(1,1,1,1),
-                    text_color=(1,1,1,1),
-                    line_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette]['700']),
-                    padding=[4,4],
-                    on_press = self.get_active_boxes,
+                    icon_color=(1, 1, 1, 1),
+                    text_color=(1, 1, 1, 1),
+                    line_color=utils.get_color_from_hex(
+                        colors[MDApp.get_running_app().theme_cls.primary_palette]['700']),
+                    padding=[4, 4],
+                    on_press=self.get_active_boxes,
                 ),
             ])
-        
+
         self.dialogx.open()
 
-
     def get_active_boxes(self, *kwargs):
-        
-        #Storing the active checkboxes in a list
+
+        # Storing the active checkboxes in a list
         self.mdlist_items = self.dialogx.children[0].children[2].children[0].children
-        self.selected_books = [i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() for i in self.mdlist_items if i.children[1].active == True]
-    
-        
-        #This is a list containing nested list for downloading 
+        self.selected_books = [i.text.replace('[size=14][font=DejaVuSans]', '').replace(
+            '[/font][/size]', '').lower() for i in self.mdlist_items if i.children[1].active == True]
+
+        # This is a list containing nested list for downloading
         complete_url_list_with_filepath = []
         for i in self.dict_book_link.keys():
             for j in self.dict_book_link[i][2].keys():
                 if i in self.selected_books:
-                    complete_url_list_with_filepath.append([i.lower(), j.lower(), self.dict_book_link[i][2][j], self.dict_book_link[i][3] ])
-        
-        
-        #Forming a dictionary to store the size of audiobook and current_downloaded_size
+                    complete_url_list_with_filepath.append(
+                        [i.lower(), j.lower(), self.dict_book_link[i][2][j], self.dict_book_link[i][3]])
+
+        # Forming a dictionary to store the size of audiobook and current_downloaded_size
         self.downloading_size_dict = {}
         for i in self.selected_books:
 
-            self.downloading_size_dict[f"{i}_full_size"] = float(self.dict_book_link[i][3].replace('MB', ''))
-            
+            self.downloading_size_dict[f"{i}_full_size"] = float(
+                self.dict_book_link[i][3].replace('MB', ''))
+
             self.downloading_size_dict[f"{i}_downloaded_size"] = 0
-           
-        
-        #Deleting the ok and cancel button 
+
+        # Deleting the ok and cancel button
         for i in list(self.dialogx.children[0].children[0].children[0].children):
             self.dialogx.children[0].children[0].children[0].remove_widget(i)
-        
 
         # Removing the Checkbox from the selected items
         for i in self.mdlist_items:
-            if i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() in self.selected_books:
-                    i.remove_widget(i.children[1])
+            if i.text.replace('[size=14][font=DejaVuSans]', '').replace('[/font][/size]', '').lower() in self.selected_books:
+                i.remove_widget(i.children[1])
             else:
                 i.ids.checkbox.disabled = True
                 i.ids.checkbox.checkbox_icon_normal = "checkbox-blank-off"
 
-
-
         # adding the spinner to selected items from the dialog list
         for i in self.mdlist_items:
-            if i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() in self.selected_books:
+            if i.text.replace('[size=14][font=DejaVuSans]', '').replace('[/font][/size]', '').lower() in self.selected_books:
                 i.add_widget(
-                    MDSpinner(size_hint=(None, None), size=(dp(24), dp(24)), pos_hint={"center_x":0.92, "center_y":0.5}, active=True, line_width=dp(3), palette=[
-                        [0.28627450980392155, 0.8431372549019608, 0.596078431372549, 1],
-                        [0.3568627450980392, 0.3215686274509804, 0.8666666666666667, 1],
-                        [0.8862745098039215, 0.36470588235294116, 0.592156862745098, 1],
-                        [0.8784313725490196, 0.9058823529411765, 0.40784313725490196, 1],
+                    MDSpinner(size_hint=(None, None), size=(dp(24), dp(24)), pos_hint={"center_x": 0.92, "center_y": 0.5}, active=True, line_width=dp(3), palette=[
+                        [0.28627450980392155, 0.8431372549019608,
+                            0.596078431372549, 1],
+                        [0.3568627450980392, 0.3215686274509804,
+                            0.8666666666666667, 1],
+                        [0.8862745098039215, 0.36470588235294116,
+                            0.592156862745098, 1],
+                        [0.8784313725490196, 0.9058823529411765,
+                            0.40784313725490196, 1],
                     ])
-                )      
+                )
 
         # Adding the Downloading label button to MDDialog
         self.label_button = MDRaisedButton(
-            text="", 
+            text="",
             md_bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]), font_size="12sp",
-            theme_text_color="Custom", text_color=(1,1,1,1), padding=[8,0], elevation=2, ripple_scale=0, size_hint=(None, None), size=(100, 20)
-            )
-        
-        self.dialogx.children[0].children[0].children[0].add_widget(self.label_button)
-        
-            
-        #Adding downloading percentage label to md_list
+            theme_text_color="Custom", text_color=(1, 1, 1, 1), padding=[8, 0], elevation=2, ripple_scale=0, size_hint=(None, None), size=(100, 20)
+        )
+
+        self.dialogx.children[0].children[0].children[0].add_widget(
+            self.label_button)
+
+        # Adding downloading percentage label to md_list
         for i in self.mdlist_items:
-            if i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() in self.selected_books:
-                
-                var_name = i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower()
-                
+            if i.text.replace('[size=14][font=DejaVuSans]', '').replace('[/font][/size]', '').lower() in self.selected_books:
+
+                var_name = i.text.replace('[size=14][font=DejaVuSans]', '').replace(
+                    '[/font][/size]', '').lower()
+
                 i.add_widget(
                     MDLabel(
-                        text="[size=10]"+str(self.downloading_size_dict[f"{var_name}_downloaded_size"])+"[/size]",
+                        text="[size=10]"+str(
+                            self.downloading_size_dict[f"{var_name}_downloaded_size"])+"[/size]",
                         halign="center",
                         markup=True,
-                        pos_hint={'center_x':0.82, 'center_y': 0.22},
+                        pos_hint={'center_x': 0.82, 'center_y': 0.22},
                         theme_text_color="Custom",
-                        text_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_dark_hue])
+                        text_color=utils.get_color_from_hex(colors[MDApp.get_running_app(
+                        ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_dark_hue])
                     )
                 )
-                
-                       
-        
-        self.thread = Thread(target=self.thread_pool_download_function, args=(complete_url_list_with_filepath, self.mdlist_items))
+
+        self.thread = Thread(target=self.thread_pool_download_function, args=(
+            complete_url_list_with_filepath, self.mdlist_items))
         # run the thread
         self.thread.setDaemon(True)
         self.thread.start()
 
         self.downloaded_audiobooks = []
-        self.download_status_interval = Clock.schedule_interval(self.check_downloaded_status, 1)
-
+        self.download_status_interval = Clock.schedule_interval(
+            self.check_downloaded_status, 1)
 
     def check_downloaded_status(self, *args):
 
         for i in self.mdlist_items:
 
-            variable = i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower()
-            
+            variable = i.text.replace('[size=14][font=DejaVuSans]', '').replace(
+                '[/font][/size]', '').lower()
+
             if variable in self.selected_books and variable not in self.downloaded_audiobooks:
-                
+
                 if not self.downloading_size_dict[f"{variable}_downloaded_size"] < self.downloading_size_dict[f"{variable}_full_size"] - 2:
-                     
-                    
+
                     self.downloaded_audiobooks.append(variable)
 
                     i.remove_widget(i.children[1])
 
                     i.add_widget(
-                         MDIconButton(
+                        MDIconButton(
                             icon="checkbox-marked-circle",
-                            pos_hint={"center_x":0.92, "center_y":0.5},theme_icon_color="Custom",
-                            icon_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette]['700'])
-                         )
+                            pos_hint={"center_x": 0.92, "center_y": 0.5}, theme_icon_color="Custom",
+                            icon_color=utils.get_color_from_hex(
+                                colors[MDApp.get_running_app().theme_cls.primary_palette]['700'])
+                        )
                     )
 
         if set(self.selected_books) == set(self.downloaded_audiobooks):
             with open(r"app data/downloaded_audiobooks.dat", "ab") as file:
                 for i in self.selected_books:
                     MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.add_widget(
-                        SwipeToDeleteItem(text=f"{i}".title(), secondary_text=f"{self.dict_book_link[i][0]}", source=f"{self.dict_book_link[i][1]}")
+                        SwipeToDeleteItem(text=f"{i}".title(
+                        ), secondary_text=f"{self.dict_book_link[i][0]}", source=f"{self.dict_book_link[i][1]}")
                     )
 
                     pickle.dump(i, file)
-            
-            self.stop_scheduled_function()
 
+            self.stop_scheduled_function()
 
     def stop_scheduled_function(self, *args):
         Clock.unschedule(self.download_status_interval)
 
-    
     def thread_pool_download_function(self, complete_url_list_with_filepath, mdlist_items):
 
-        
         def get_confirm_token(response):
             for key, value in response.cookies.items():
                 if key.startswith('download_warning'):
                     return value
 
             return None
-            
 
         def download_file(url_filepath_list):
-            
+
             session = requests.Session()
-        
-            response = session.get(url_filepath_list[2], params = { 'id' : id }, stream = True)
+
+            response = session.get(url_filepath_list[2], params={
+                                   'id': id}, stream=True)
             token = get_confirm_token(response)
-            
+
             if token:
-                params = { 'id' : id, 'confirm' : token }
-                response = session.get(url_filepath_list[2], params = params, stream = True)
+                params = {'id': id, 'confirm': token}
+                response = session.get(
+                    url_filepath_list[2], params=params, stream=True)
 
             save_response_content(response, url_filepath_list)
-        
+
         def save_response_content(response, url_filepath_list):
 
-
             # download_filder_path contains the name of the file as well
-            download_folder_path = os.path.join(r'app data/audiobooks', url_filepath_list[0]) 
+            download_folder_path = os.path.join(
+                r'app data/audiobooks', url_filepath_list[0])
 
             if not os.path.exists(download_folder_path):
                 os.makedirs(download_folder_path)
 
-
             filename = url_filepath_list[1]
 
             CHUNK_SIZE = 32768
-            f = open(os.path.join(download_folder_path, filename)+'.mp3', "wb") 
+            f = open(os.path.join(download_folder_path, filename)+'.mp3', "wb")
             for chunk in response.iter_content(CHUNK_SIZE):
-                if chunk: 
+                if chunk:
 
-                    self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"] += len(chunk)/(1024*1024)
-                    
+                    self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"] += len(
+                        chunk)/(1024*1024)
+
                     f.write(chunk)
- 
-                    combined_downloaded_size = sum([ self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_downloaded_size") ])
 
-                    combined_full_size = sum([ self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_full_size") ])
+                    combined_downloaded_size = sum(
+                        [self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_downloaded_size")])
+
+                    combined_full_size = sum(
+                        [self.downloading_size_dict[i] for i in self.downloading_size_dict.keys() if i.endswith("_full_size")])
 
                     combined_download_percentage = combined_downloaded_size / combined_full_size * 100
-    
 
-                    update_downloading_perc_label(self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"], url_filepath_list[0], combined_download_percentage, self.downloading_size_dict[f"{url_filepath_list[0].lower()}_full_size"], self.dialogx, self.mdlist_items)
-        
+                    update_downloading_perc_label(self.downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"], url_filepath_list[0],
+                                                  combined_download_percentage, self.downloading_size_dict[f"{url_filepath_list[0].lower()}_full_size"], self.dialogx, self.mdlist_items)
+
             else:
                 f.close()
-                
 
-            
         def update_downloading_perc_label(downloaded_size, received_name, download_percentage, full_size, download_dialog, mdlist_items):
 
-
-            req_label_widget = [i for i in mdlist_items if i.text.replace('[size=14][font=DejaVuSans]','').replace('[/font][/size]','').lower() == received_name.lower() ][0].children[0]
+            req_label_widget = [i for i in mdlist_items if i.text.replace('[size=14][font=DejaVuSans]', '').replace(
+                '[/font][/size]', '').lower() == received_name.lower()][0].children[0]
 
             req_label_button_widget = self.label_button
-            
-        
-            req_label_widget.text =  "[size=10]" + str(f"{round(downloaded_size,1)}") + "/" + "[/size]" 
 
-                    
-            #Updating the button label in MDDialog box
+            req_label_widget.text = "[size=10]" + \
+                str(f"{round(downloaded_size,1)}") + "/" + "[/size]"
+
+            # Updating the button label in MDDialog box
             if download_percentage < 99.7:
-                req_label_button_widget.text = "[font=assets/fonts/try4.ttf]Downloading... [/font]" + f"[b]{round(download_percentage,1)}%[/b]"
+                req_label_button_widget.text = "[font=assets/fonts/try4.ttf]Downloading... [/font]" + \
+                    f"[b]{round(download_percentage,1)}%[/b]"
             else:
-                for i in range(5,0,-1):
+                for i in range(5, 0, -1):
                     time.sleep(5)
-                    req_label_button_widget.text = "[font=assets/fonts/try4.ttf]Download Finished! [/font]" + f"[b]{100.0}%[/b]" + f"\n[font=assets/fonts/try4.ttf][i]This Dialog box will self close in[/i][/font] [b]{i}[/b]"
-            
+                    req_label_button_widget.text = "[font=assets/fonts/try4.ttf]Download Finished! [/font]" + \
+                        f"[b]{100.0}%[/b]" + \
+                        f"\n[font=assets/fonts/try4.ttf][i]This Dialog box will self close in[/i][/font] [b]{i}[/b]"
+
                 download_dialog.dismiss()
 
-            
-                
         with ThreadPoolExecutor() as executor:
             executor.map(download_file, complete_url_list_with_filepath)
 
-
     def insert_audiobook_parts(self, instance):
-        MDApp.get_running_app().screens.get_screen('playscreen').ids.md_list_2.clear_widgets()
+        MDApp.get_running_app().screens.get_screen(
+            'playscreen').ids.md_list_2.clear_widgets()
         self.selected_audiobook = instance.text.lower()
 
         for i in self.dict_book_link[instance.text.lower()][2]:
             MDApp.get_running_app().screens.get_screen('playscreen').ids.md_list_2.add_widget(
-            OneLineAvatarIconListItem(IconLeftWidget(icon="headphones", theme_icon_color="Custom",icon_color=(1,1,1,1)), text=f"{i}".replace('part','part-').title(), theme_text_color="Custom",text_color=(1,1,1,1), radius=[10, ]
-            # , bg_color = (0,0,0,0.35)
-            ,on_press=self.part_highlight, 
-            on_release=lambda x: MDApp.get_running_app().screens.get_screen('playscreen').load_audiobook(int(x.text.replace('Part-','').lower()))
+                OneLineAvatarIconListItem(IconLeftWidget(icon="headphones", theme_icon_color="Custom", icon_color=(1, 1, 1, 1)), text=f"{i}".replace('part', 'part-').title(), theme_text_color="Custom", text_color=(1, 1, 1, 1), radius=[10, ]                                          # , bg_color = (0,0,0,0.35)
+                                          , on_press=self.part_highlight,
+                                          on_release=lambda x: MDApp.get_running_app().screens.get_screen(
+                                          'playscreen').load_audiobook(int(x.text.replace('Part-', '').lower()))
+                                          )
             )
-            )
-            
 
     def part_highlight(self, instance):
         for i in instance.parent.parent.children[0].children:
-            i.bg_color = (0,0,0,0)
+            i.bg_color = (0, 0, 0, 0)
         else:
-            instance.bg_color = utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
+            instance.bg_color = utils.get_color_from_hex(colors[MDApp.get_running_app(
+            ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
 
     def set_menu_screen_list_items(self, text="", search=False):
-        
+
         if search:
             self.ids.md_list.clear_widgets()
             for audiobook in MDApp.get_running_app().downloaded_audiobook_list:
                 if text in audiobook.lower():
                     self.ids.md_list.add_widget(
-                        SwipeToDeleteItem(text=f"{audiobook}".title(), secondary_text=f"{self.dict_book_link[audiobook][0]}", source=f"{self.dict_book_link[audiobook][1]}")
+                        SwipeToDeleteItem(text=f"{audiobook}".title(
+                        ), secondary_text=f"{self.dict_book_link[audiobook][0]}", source=f"{self.dict_book_link[audiobook][1]}")
                     )
 
         else:
             for audiobook in MDApp.get_running_app().downloaded_audiobook_list:
                 self.ids.md_list.add_widget(
-                        SwipeToDeleteItem(text=f"{audiobook}".title(), secondary_text=f"{self.dict_book_link[audiobook][0]}", source=f"{self.dict_book_link[audiobook][1]}")
+                    SwipeToDeleteItem(text=f"{audiobook}".title(
+                    ), secondary_text=f"{self.dict_book_link[audiobook][0]}", source=f"{self.dict_book_link[audiobook][1]}")
                 )
 
 
@@ -1357,26 +1382,28 @@ class MainApp(MDApp):
 
         self.screens = Builder.load_string(KV)
 
-        returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml',headers = {'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}) 
-        
-        self.dict_book_link = yaml.safe_load(returned_response.content )
-    
+        returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml', headers={
+                                         'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'})
+
+        self.dict_book_link = yaml.safe_load(returned_response.content)
+
         self.downloaded_audiobook_list = []
 
         file = "app data/downloaded_audiobooks.dat"
-        if os.path.isfile(file): 
+        if os.path.isfile(file):
             with open(file, "rb") as file_object:
                 try:
                     while True:
-                        self.downloaded_audiobook_list.append(pickle.load(file_object))
+                        self.downloaded_audiobook_list.append(
+                            pickle.load(file_object))
                 except EOFError:
                     pass
 
         for i in self.downloaded_audiobook_list:
             MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.add_widget(
-                SwipeToDeleteItem(text=f"{i}".title(), secondary_text=f"{self.dict_book_link[i][0]}", source=f"{self.dict_book_link[i][1]}")
+                SwipeToDeleteItem(text=f"{i}".title(
+                ), secondary_text=f"{self.dict_book_link[i][0]}", source=f"{self.dict_book_link[i][1]}")
             )
-
 
         # Sleep timer drop-down menu
         menu_items = [
@@ -1385,17 +1412,18 @@ class MainApp(MDApp):
                 "height": dp(40),
                 "text": "[size=16][font=DejaVuSans][b]" + [f"{i} minutes" if i != 'End of Episode' else i][0] + "[/b][/font][/size]",
                 "theme_text_color": "Custom",
-                "text_color": (1,1,1,1),
+                "text_color": (1, 1, 1, 1),
                 # "bg_color": (0,0,0,0.35),
-                "on_press": lambda x=i: Snackbar(text=f"[b]The audio will stop in {x} seconds[/b]", snackbar_x="10dp", bg_color = utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
-                snackbar_y="10dp", size_hint_x = (self.screens.get_screen('menuscreen').width - 20) / self.screens.get_screen('menuscreen').width, elevation=2).open(),
+                "on_press": lambda x=i: Snackbar(text=f"[b]The audio will stop in {x} seconds[/b]", snackbar_x="10dp", bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
+                                                 snackbar_y="10dp", size_hint_x=(self.screens.get_screen('menuscreen').width - 20) / self.screens.get_screen('menuscreen').width, elevation=2).open(),
                 "on_release": lambda x=i: self.sleep_menu_callback(x),
-            } for i in [5, 10, 15, 30, 45, 'End of Episode'] 
+            } for i in [5, 10, 15, 30, 45, 'End of Episode']
         ]
 
         self.sleep_menu = MDDropdownMenu(
             header_cls=MenuHeader(icon="sleep", label="Stop  audio  in"),
-            caller=self.screens.get_screen('playscreen').ids.sleep_timer_button,
+            caller=self.screens.get_screen(
+                'playscreen').ids.sleep_timer_button,
             items=menu_items,
             width_mult=4,
             position="bottom",
@@ -1406,20 +1434,21 @@ class MainApp(MDApp):
             # max_height=dp(112),
             # border_margin=dp(24),
             radius=[24, 4, 24, 4],
-            background_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
+            background_color=utils.get_color_from_hex(colors[MDApp.get_running_app(
+            ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
         )
 
         # _________________________________________________________________________________
 
         # Theme colour of the app
-        
+
         theme_color_menu_items = [
             {
                 "viewclass": "IconListItem",
                 "icon": "invert-colors",
                 "icon_color": utils.get_color_from_hex(colors[i]['300']),
                 "theme_text_color": "Custom",
-                "text_color": (1,1,1,0.9),
+                "text_color": (1, 1, 1, 0.9),
                 "height": dp(40),
                 "text": "[size=16][font=DejaVuSans]" + f"{i}" + "[/font][/size]",
                 "bg_color": utils.get_color_from_hex(colors[i]['900']),
@@ -1428,7 +1457,8 @@ class MainApp(MDApp):
         ]
 
         self.theme_menu = MDDropdownMenu(
-            header_cls=MenuHeader(icon="select-color", label="Select  theme - color"),
+            header_cls=MenuHeader(icon="select-color",
+                                  label="Select  theme - color"),
             items=theme_color_menu_items,
             width_mult=4,
             elevation=4,
@@ -1439,39 +1469,40 @@ class MainApp(MDApp):
             border_margin=dp(20),
             # border_margin=dp(24),
             radius=[24, 4, 24, 4],
-            background_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
+            background_color=utils.get_color_from_hex(colors[MDApp.get_running_app(
+            ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
         )
-        
 
-    
     def sleep_menu_callback(self, instance):
         if instance != 'End of Episode':
-            Clock.schedule_once(lambda x: self.screens.get_screen('playscreen').play_pause(), instance*60)
-            Clock.schedule_once(lambda x: self.change_sleep_button_color, instance*60)
-        self.screens.get_screen('playscreen').ids.sleep_timer_button.icon_color = utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_dark_hue])
+            Clock.schedule_once(lambda x: self.screens.get_screen(
+                'playscreen').play_pause(), instance*60)
+            Clock.schedule_once(
+                lambda x: self.change_sleep_button_color, instance*60)
+        self.screens.get_screen('playscreen').ids.sleep_timer_button.icon_color = utils.get_color_from_hex(
+            colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_dark_hue])
         self.sleep_menu.dismiss()
 
     def theme_color_menu_callback(self, selected_color):
         self.theme_cls.primary_palette = selected_color
-        self.sleep_menu.background_color = utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
-        self.theme_menu.background_color = utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
+        self.sleep_menu.background_color = utils.get_color_from_hex(colors[MDApp.get_running_app(
+        ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
+        self.theme_menu.background_color = utils.get_color_from_hex(colors[MDApp.get_running_app(
+        ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
         self.theme_menu.dismiss()
 
     def change_sleep_button_color(self, *args):
-        self.screens.get_screen('playscreen').ids.sleep_timer_button.icon_color = (1,1,1,1)
+        self.screens.get_screen(
+            'playscreen').ids.sleep_timer_button.icon_color = (1, 1, 1, 1)
 
-        
     def on_stop(self):
         try:
             self.screens.get_screen('playscreen').audiobook.unload()
         except AttributeError:
-            pass        
-
+            pass
 
     def build(self):
         return self.screens
-    
 
-        
 
 MainApp().run()
