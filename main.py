@@ -992,10 +992,10 @@ class MenuScreen(MDScreen):
             ],
         }
 
-        returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml', headers={
-                                         'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'})
+        with open('app data/book link dict.yaml', 'r') as file:
+            self.dict_book_link = yaml.safe_load(file)
 
-        self.dict_book_link = yaml.safe_load(returned_response.content)
+        self.downloaded_audiobook_list = []
 
     def remove_item(self, instance):
 
@@ -1382,10 +1382,13 @@ class MainApp(MDApp):
 
         self.screens = Builder.load_string(KV)
 
-        returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml', headers={
-                                         'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'})
+        # returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml', headers={
+        #                                  'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'})
 
-        self.dict_book_link = yaml.safe_load(returned_response.content)
+        # self.dict_book_link = yaml.safe_load(returned_response.content)
+
+        with open('app data/book link dict.yaml', 'r') as file:
+            self.dict_book_link = yaml.safe_load(file)
 
         self.downloaded_audiobook_list = []
 
