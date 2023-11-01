@@ -245,8 +245,8 @@ KV = '''
         theme_icon_color: "Custom"
         icon_color: 0,0,0,0.8
         ripple_scale: .5
-        pos_hint: {"center_y": .7}
-        pos: text_field.width - self.width + dp(8), 0.5
+        pos_hint: {"center_y": .5}
+        pos: text_field.width - self.width, 0.5
         on_release:
             text_field.text=''
             # self.icon = "pencil" if self.icon == "close" else "close"
@@ -460,7 +460,6 @@ MDScreenManager:
             label_radius: [12, 12, 12, 12]
             color_icon_stack_button: (1,1,1,1)
             color_icon_root_button: (1,1,1,1)
-            bg_hint_color: "red"
 
         MDLabel:
             font_size: self.width/8.5
@@ -739,8 +738,6 @@ MDScreenManager:
 '''
 
 # for searchbar in library
-
-
 class ClickableTextFieldRound(MDRelativeLayout):
     text = StringProperty()
     hint_text = StringProperty()
@@ -1465,12 +1462,11 @@ class MainApp(MDApp):
             header_cls=MenuHeader(icon="select-color",
                                   label="Select  theme - color"),
             items=theme_color_menu_items,
-            width_mult=4,
-            elevation=4,
-            # position="center",
             ver_growth="up",
             hor_growth="left",
-            max_height=dp(112),
+            width_mult=5,
+            elevation=4,
+            max_height=dp(412),
             border_margin=dp(20),
             # border_margin=dp(24),
             radius=[24, 4, 24, 4],
@@ -1494,7 +1490,7 @@ class MainApp(MDApp):
         ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
         self.theme_menu.background_color = utils.get_color_from_hex(colors[MDApp.get_running_app(
         ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
-        self.theme_menu.dismiss()
+        self.sleep_menu.dismiss()
 
     def change_sleep_button_color(self, *args):
         self.screens.get_screen(
