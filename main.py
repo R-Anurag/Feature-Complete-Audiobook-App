@@ -222,7 +222,7 @@ KV = '''
     MDTextField:
         id: text_field
         mode: 'fill'
-        font_size: '14sp'
+        font_size: '16sp'
         hint_text: root.hint_text
         text: root.text
         password: False
@@ -241,7 +241,7 @@ KV = '''
     MDIconButton:
         id: close_button
         icon: "close"
-        icon_size: "16sp"   
+        icon_size: "20sp"   
         theme_icon_color: "Custom"
         icon_color: 0,0,0,0.8
         ripple_scale: .5
@@ -453,13 +453,15 @@ MDScreenManager:
             # markup: True
             data: root.data
             root_button_anim: True
-            hint_animation: True
+            # hint_animation: True
             label: True
             label_text_color: (1,1,1,1)
+            label_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
+            label_radius: [12, 12, 12, 12]
             color_icon_stack_button: (1,1,1,1)
             color_icon_root_button: (1,1,1,1)
-            bg_hint_color: app.theme_cls.primary_color
-            
+            bg_hint_color: "red"
+
         MDLabel:
             font_size: self.width/8.5
             bold: True
