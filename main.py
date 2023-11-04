@@ -177,8 +177,10 @@ KV = '''
 
             
             ImageLeftWidget:
-                source: root.source
+                source: root.source if app.screens.get_screen('menuscreen').check_internet_connection() != 'off' else 'assets/images/appicon.png'
                 disabled: True
+                ripple_scale: 0
+                ripple_color: 0,0,0,0
             
 
 
@@ -186,7 +188,7 @@ KV = '''
 <ListItemWithCheckbox>:
     _no_ripple_effect: True
     AsyncImage:
-        source: root.source
+        source: root.source if app.screens.get_screen('menuscreen').check_internet_connection() != 'off' else 'assets/images/appicon.png'
         size_hint: None, None
         size: self.image_ratio*root.height,root.height/1.5
         mipmap: True 
@@ -278,8 +280,8 @@ KV = '''
 
 
 MDScreenManager:
-    MenuScreen
     WelcomeScreen
+    MenuScreen
     PlayScreen
 
     
@@ -443,10 +445,11 @@ MDScreenManager:
     
 <MenuScreen>
     name: "menuscreen"
-    audiobook_primary_text: 'No audiobooks found'
-    audiobook_secondary_text: 'Click the + button to insert local audiobooks or download avaialable audiobooks from the server'
+    audiobook_primary_text: 'Hey buddy! You`ve no audiobooks'
+    audiobook_secondary_text: 'Let me show you how to download some by clicking'
     gif_source: "assets/images/welcome cat.zip"
-    gif_source_2: "assets/images/catplayingdark.zip"
+    gif_source_2: "assets/images/catdrinkingjuice.zip"
+    gif_source_3: "assets/images/catpointingright.zip"
 
 
     canvas.before:
@@ -463,11 +466,12 @@ MDScreenManager:
         Image:
             id: background_gif
             source: root.gif_source if md_list.children == [] else root.gif_source_2
-            size_hint: (0.3, 0.3) if md_list.children == [] else (0.22, 0.22)
-            pos_hint: {"center_x": 0.5, "center_y": 0.6} if md_list.children == [] else {"center_x": 0.85, "center_y": 0.93}
+            size_hint: (0.3, 0.3) if md_list.children == [] else (0.27, 0.27) 
+            pos_hint: {"center_x": 0.5, "center_y": 0.6} if md_list.children == [] else {"center_x": 0.84, "center_y": 0.92}
             anim_delay: 0.1
             minimap: True
             allow_stretch: True
+
         
         MDScrollView:
             size_hint: (0.98, 0.81)
@@ -488,7 +492,8 @@ MDScreenManager:
             text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue])  
 
         MDLabel:
-            font_size: self.width/13
+            id: primary_label
+            font_size: self.width/15
             bold: True
             text: root.audiobook_primary_text if md_list.children == [] else ""
             font_name: "assets/fonts/PlayfairDisplay-Bold.ttf"
@@ -499,6 +504,8 @@ MDScreenManager:
             text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])  
         
         MDLabel:
+            id: secondary_label
+            markup: True
             font_size: self.width/22
             bold: True
             text: root.audiobook_secondary_text if md_list.children == [] else ""
@@ -509,6 +516,22 @@ MDScreenManager:
             pos_hint: {'center_x':0.5, 'center_y':0.42}
             theme_text_color: 'Custom'
             text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue])  
+        
+        MDFlatButton:
+            font_size: secondary_label.font_size
+            text: f'[color={colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue]}]here[/color]' if md_list.children == [] else ""
+            pos_hint: {'center_x':0.64, 'center_y':0.41}
+            disabled: True if md_list.children != [] else False
+            ripple_scale: 0 if md_list.children != [] else 0.3
+            padding: [0, ]
+            on_release:
+                background_gif.source = root.gif_source_3 if md_list.children == [] else root.gif_source_2
+                background_gif.pos_hint= {"center_x": 0.7, "center_y": 0.075} if md_list.children == [] else {"center_x": 0.84, "center_y": 0.92}
+                background_gif.size_hint= (0.4, 0.4) if md_list.children == [] else (0.27, 0.27) 
+                secondary_label.text= "Yes! That button right there!" if md_list.children == [] else ""
+                primary_label.text= "Press it" if md_list.children == [] else ""
+                self.text = ""
+                
         
         ClickableTextFieldRound:
             id: search_field
@@ -680,6 +703,7 @@ MDScreenManager:
                 icon: "rewind-10"
                 icon_size: "28sp" 
                 pos_hint: {'center_x': 0.30, 'center_y': 0}
+                ripple_scale: 0.3
                 theme_icon_color: "Custom"
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
                 on_release:
@@ -691,6 +715,7 @@ MDScreenManager:
                 icon: "play-circle"
                 icon_size: "48sp" 
                 pos_hint: {'center_x': 0.50, 'center_y': 0}
+                ripple_scale: 0.3
                 theme_icon_color: "Custom"
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
                 on_release:
@@ -701,6 +726,7 @@ MDScreenManager:
                 icon: "fast-forward-10"
                 icon_size: "28sp"  
                 pos_hint: {'center_x': 0.70, 'center_y': 0}
+                ripple_scale: 0.3
                 theme_icon_color: "Custom"
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
                 on_release:
@@ -710,6 +736,7 @@ MDScreenManager:
             MDIconButton:
                 icon: "skip-previous"
                 theme_icon_color: "Custom"
+                ripple_scale: 0.3
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
                 icon_size: "28sp"  
                 pos_hint: {'center_x': 0.05, 'center_y': 0}
@@ -719,6 +746,7 @@ MDScreenManager:
             MDIconButton:
                 icon: "skip-next"
                 theme_icon_color: "Custom"
+                ripple_scale: 0.3
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
                 icon_size: "28sp"  
                 pos_hint: {'center_x': 0.95, 'center_y': 0}
@@ -753,6 +781,7 @@ MDScreenManager:
             icon: "chevron-down"
             icon_size: "24sp" 
             pos_hint: {"center_x": 0.5, "center_y": 0.94}
+            ripple_scale: 0.3
             theme_icon_color: "Custom"
             icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
             on_release:
@@ -929,8 +958,13 @@ class PlayScreen(MDScreen):
 
         self.playscreen_ids = MDApp.get_running_app().screens.get_screen('playscreen').ids
         self.slider = self.playscreen_ids.slider
-        self.playscreen_ids.album_picture.source = MDApp.get_running_app().screens.get_screen(
+        
+        if MDApp.get_running_app().screens.get_screen('menuscreen').check_internet_connection() != 'off':
+            self.playscreen_ids.album_picture.source = MDApp.get_running_app().screens.get_screen(
             'menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][1]
+        else:
+            self.playscreen_ids.album_picture.source = "assets/images/appicon.png"
+
         self.playscreen_ids.audiobook_album_name.text = MDApp.get_running_app().screens.get_screen(
             'menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0]
         self.playscreen_ids.audiobook_part_name.text = MDApp.get_running_app().screens.get_screen(
@@ -1138,7 +1172,7 @@ class MenuScreen(MDScreen):
         # Storing the active checkboxes in a list
         self.mdlist_items = self.dialogx.children[0].children[2].children[0].children
         self.selected_books = [i.text.replace('[size=14][font=DejaVuSans]', '').replace(
-            '[/font][/size]', '').lower() for i in self.mdlist_items if i.children[1].active == True]
+            '[/font][/size]', '').lower().strip() for i in self.mdlist_items if i.children[3].active == True]
 
         # This is a list containing nested list for downloading
         complete_url_list_with_filepath = []
@@ -1157,21 +1191,21 @@ class MenuScreen(MDScreen):
 
             self.downloading_size_dict[f"{i}_downloaded_size"] = 0
 
-        # Deleting the ok and cancel button
+        # Deleting the ok, close and update button
         for i in list(self.dialogx.children[0].children[0].children[0].children):
             self.dialogx.children[0].children[0].children[0].remove_widget(i)
 
         # Removing the Checkbox from the selected items
         for i in self.mdlist_items:
-            if i.text.replace('[size=14][font=DejaVuSans]', '').replace('[/font][/size]', '').lower() in self.selected_books:
-                i.remove_widget(i.children[1])
+            if i.text.replace('[size=14][font=DejaVuSans]', '').replace('[/font][/size]', '').lower().strip() in self.selected_books:
+                i.remove_widget(i.children[3])
             else:
                 i.ids.checkbox.disabled = True
                 i.ids.checkbox.checkbox_icon_normal = "checkbox-blank-off"
 
         # adding the spinner to selected items from the dialog list
         for i in self.mdlist_items:
-            if i.text.replace('[size=14][font=DejaVuSans]', '').replace('[/font][/size]', '').lower() in self.selected_books:
+            if i.text.replace('[size=14][font=DejaVuSans]', '').replace('[/font][/size]', '').lower().strip() in self.selected_books:
                 i.add_widget(
                     MDSpinner(size_hint=(None, None), size=(dp(24), dp(24)), pos_hint={"center_x": 0.92, "center_y": 0.5}, active=True, line_width=dp(3), palette=[
                         [0.28627450980392155, 0.8431372549019608,
@@ -1197,10 +1231,10 @@ class MenuScreen(MDScreen):
 
         # Adding downloading percentage label to md_list
         for i in self.mdlist_items:
-            if i.text.replace('[size=14][font=DejaVuSans]', '').replace('[/font][/size]', '').lower() in self.selected_books:
+            if i.text.replace('[size=14][font=DejaVuSans]', '').replace('[/font][/size]', '').lower().strip() in self.selected_books:
 
                 var_name = i.text.replace('[size=14][font=DejaVuSans]', '').replace(
-                    '[/font][/size]', '').lower()
+                    '[/font][/size]', '').lower().strip()
 
                 i.add_widget(
                     MDLabel(
@@ -1230,7 +1264,7 @@ class MenuScreen(MDScreen):
         for i in self.mdlist_items:
 
             variable = i.text.replace('[size=14][font=DejaVuSans]', '').replace(
-                '[/font][/size]', '').lower()
+                '[/font][/size]', '').lower().strip()
 
             if variable in self.selected_books and variable not in self.downloaded_audiobooks:
 
@@ -1238,8 +1272,10 @@ class MenuScreen(MDScreen):
 
                     self.downloaded_audiobooks.append(variable)
 
+                    #removing the spinner 
                     i.remove_widget(i.children[1])
 
+                    #adding the done icon
                     i.add_widget(
                         MDIconButton(
                             icon="checkbox-marked-circle",
@@ -1328,7 +1364,7 @@ class MenuScreen(MDScreen):
         def update_downloading_perc_label(downloaded_size, received_name, download_percentage, full_size, download_dialog, mdlist_items):
 
             req_label_widget = [i for i in mdlist_items if i.text.replace('[size=14][font=DejaVuSans]', '').replace(
-                '[/font][/size]', '').lower() == received_name.lower()][0].children[0]
+                '[/font][/size]', '').lower().strip() == received_name.lower()][0].children[0]
 
             req_label_button_widget = self.label_button
 
@@ -1336,7 +1372,7 @@ class MenuScreen(MDScreen):
                 str(f"{round(downloaded_size,1)}") + "/" + "[/size]"
 
             # Updating the button label in MDDialog box
-            if download_percentage < 99.7:
+            if download_percentage < 99.5:
                 req_label_button_widget.text = "[font=assets/fonts/try4.ttf]Downloading... [/font]" + \
                     f"[b]{round(download_percentage,1)}%[/b]"
             else:
@@ -1372,18 +1408,20 @@ class MenuScreen(MDScreen):
         try:
             request = requests.get(url,
                                 timeout=timeout)
-            self.internet_status = 'on'
+            return 'on'
  
         except (requests.ConnectionError,
                 requests.Timeout) as exception:
-            self.internet_status = 'off'
+            return 'off'
 
 
     def update_download_list(self, *kwargs):
 
-        self.check_internet_connection()
-        if self.internet_status != 'off':
-    
+        internet_status = self.check_internet_connection()
+        if internet_status != 'off':
+            
+            old_list_of_audiobooks = self.dict_book_link
+
             returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml', headers={
                                             'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'})
             
@@ -1412,6 +1450,15 @@ class MenuScreen(MDScreen):
 
                     len(self.dialogx.children[0].children[2].children[0].children)
                 )
+
+            if newly_added_audiobooks == []:
+                Snackbar(text=f"The download list is up-to-date already!", snackbar_x="10dp", bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
+                                                 snackbar_y="10dp", size_hint_x=(self.width - 20) / self.width, elevation=2).open()
+
+            else:
+                Snackbar(text=f"The download list has been updated!", snackbar_x="10dp", bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
+                                                 snackbar_y="10dp", size_hint_x=(self.width - 20) / self.width, elevation=2).open()
+
         
         else:
             Snackbar(text=f"No internet! Check your connection!", snackbar_x="10dp", bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
@@ -1479,16 +1526,19 @@ class WelcomeScreen(MDScreen):
 
 
 
+sm = ScreenManager()
+sm.add_widget(WelcomeScreen(name='welcomescreen'))
+sm.add_widget(MenuScreen(name='menuscreen'))
+sm.add_widget(PlayScreen(name='playscreen'))
+
+
 
 class MainApp(MDApp):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.sm = ScreenManager()
-        self.sm.add_widget(WelcomeScreen(name='welcomescreen'))
-        self.sm.add_widget(MenuScreen(name='menuscreen'))
-        self.sm.add_widget(PlayScreen(name='playscreen'))
+        
 
         # defining color themes for the app
         self.theme_cls.material_style = "M3"   #yeah don`t really see any change, except for the change that it brings out in the shape of floatingactionbutton. Otherwise, it is pretty useless ig
@@ -1654,11 +1704,9 @@ class MainApp(MDApp):
         self.screens.get_screen(
             'playscreen').ids.sleep_timer_button.icon_color = (1, 1, 1, 1)
         
-
     def on_start(self):
-        if not os.path.exists("app data/downloaded_audiobooks.dat"):
-            self.sm.current = 'welcomescreen'
-
+        if os.path.exists('app data/downloaded_audiobooks.dat'):
+            self.screens.get_screen('welcomescreen').manager.current = 'menuscreen'
 
     def on_stop(self):
         try:
