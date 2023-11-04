@@ -1,7 +1,7 @@
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivymd.uix.card import MDCardSwipe
-from kivymd.uix.screenmanager import MDScreenManager
+from kivy.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
 from kivy.clock import Clock
 from kivy.properties import StringProperty, ObjectProperty, DictProperty
@@ -188,7 +188,7 @@ KV = '''
     AsyncImage:
         source: root.source
         size_hint: None, None
-        size:self.image_ratio*root.height,root.height/1.5
+        size: self.image_ratio*root.height,root.height/1.5
         mipmap: True 
         pos_hint: {'center_x':0.1, 'center_y': 0.5}
         disabled: True
@@ -212,7 +212,24 @@ KV = '''
         pos_hint: {'center_x':0.92, 'center_y': 0.22}
         theme_text_color: "Custom"
         text_color: 0, 0, 0, 0.8
-    
+
+    Marquee:
+        text: root.sliding_text
+        color: 0,0,0,0.7
+        font_name: 'DejaVuSans'
+        font_size: 14
+        duration: 7
+        padding: 10
+        pos_hint: {'center_x': 0.46, 'center_y': 0.52}
+        size_hint_x: 0.5
+
+    MDIcon:
+        icon: root.new_icon
+        icon_size: "28sp"
+        theme_text_color: "Custom"
+        text_color: utils.get_color_from_hex(colors['Red'][app.theme_cls.primary_hue])
+        pos_hint: {'center_x':0.92, 'center_y': 0.85}
+
 
     
 
@@ -245,8 +262,9 @@ KV = '''
         theme_icon_color: "Custom"
         icon_color: 0,0,0,0.8
         ripple_scale: .5
+        md_bg_color: 0,0,0,0
         pos_hint: {"center_y": .5}
-        pos: text_field.width - self.width, 0.5
+        pos: text_field.width - self.width, text_field.height - self.height
         on_release:
             text_field.text=''
             # self.icon = "pencil" if self.icon == "close" else "close"
@@ -260,13 +278,22 @@ KV = '''
 
 
 MDScreenManager:
-    WelcomeScreen
     MenuScreen
+    WelcomeScreen
     PlayScreen
+
     
 
 <WelcomeScreen>
     name: 'welcomescreen'
+
+    canvas.before:
+        Color:
+            rgba: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])  
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            
     MDCarousel:
         id: carousel
         anim_move_duration: 0.5
@@ -283,18 +310,18 @@ MDScreenManager:
                 halign: "center"
                 pos_hint: {"center_x": 0.5, "center_y": 0.38}
                 font_name: "assets/fonts/Poppins-Bold.ttf"
-                font_size: "16sp"
+                font_size: "20sp"
                 theme_text_color: "Custom"
-                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue])
 
             MDLabel:
                 text: "Say goodbye to dull and unexciting reading experiences, and open the door to captivating storytelling through immersive audiobooks."
                 size_hint_x: 0.85
                 pos_hint: {"center_x": 0.5, "center_y": 0.27}
                 font_name: "assets/fonts/Poppins-Medium.ttf"
-                font_size: "14sp"
+                font_size: "18sp"
                 theme_text_color: "Custom"
-                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue])
 
         MDFloatLayout:
             FitImage:
@@ -308,18 +335,18 @@ MDScreenManager:
                 halign: "center"
                 pos_hint: {"center_x": 0.5, "center_y": 0.38}
                 font_name: "assets/fonts/Poppins-Bold.ttf"
-                font_size: "16sp"
+                font_size: "20sp"
                 theme_text_color: "Custom"
-                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue])
 
             MDLabel:
                 text: "Experience the delight of an uninterrupted and immersive listening session, where your audiobooks come to life in a flowing and engaging journey."
                 size_hint_x: 0.85
                 pos_hint: {"center_x": 0.5, "center_y": 0.27}
                 font_name: "assets/fonts/Poppins-Medium.ttf"
-                font_size: "14sp"
+                font_size: "18sp"
                 theme_text_color: "Custom"
-                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue])
 
         MDFloatLayout:
             FitImage:
@@ -333,18 +360,18 @@ MDScreenManager:
                 halign: "center"
                 pos_hint: {"center_x": 0.5, "center_y": 0.38}
                 font_name: "assets/fonts/Poppins-Bold.ttf"
-                font_size: "16sp"
+                font_size: "20sp"
                 theme_text_color: "Custom"
-                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue])
 
             MDLabel:
                 text: "Enjoy your audiobooks without the annoyance of intrusive ads or promotional interruptions."
                 size_hint_x: 0.85
                 pos_hint: {"center_x": 0.5, "center_y": 0.27}
                 font_name: "assets/fonts/Poppins-Medium.ttf"
-                font_size: "14sp"
+                font_size: "18sp"
                 theme_text_color: "Custom"
-                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
+                text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue])
 
     MDRelativeLayout:
         id: start_buttons
@@ -358,11 +385,11 @@ MDScreenManager:
             text: "SKIP"
             font_size: "18sp"
             font_name: "assets/fonts/Poppins-Medium.ttf"
-            radius: [120,]
+            radius: [32,]
             rounded_button: True
             md_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
             theme_text_color: "Custom"
-            text_color: (1,1,1,1)
+            text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue])
             line_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
             padding: [30, 20, 30, 20]
             pos: dp(30), self.parent.parent.height/14
@@ -373,11 +400,11 @@ MDScreenManager:
             text: "NEXT"
             font_size: "18sp"
             font_name: "assets/fonts/Poppins-Medium.ttf"
-            radius: [120,]
+            radius: [32,]
             rounded_button: True
             md_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
             theme_text_color: "Custom"
-            text_color: (1,1,1,1)
+            text_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue])
             line_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
             padding: [30, 20, 30, 20]
             pos: self.parent.parent.width - (self.width +dp(30)), self.parent.parent.height/14
@@ -393,7 +420,7 @@ MDScreenManager:
         MDIconButton:
             icon: "circle"
             theme_icon_color: "Custom"
-            icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
+            icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue])
             icon_size: "8sp"
             pos: 0, self.parent.parent.height/8
         
@@ -413,12 +440,14 @@ MDScreenManager:
 
 
             
+    
 <MenuScreen>
-    name: 'menuscreen'
+    name: "menuscreen"
     audiobook_primary_text: 'No audiobooks found'
     audiobook_secondary_text: 'Click the + button to insert local audiobooks or download avaialable audiobooks from the server'
     gif_source: "assets/images/welcome cat.zip"
     gif_source_2: "assets/images/catplayingdark.zip"
+
 
     canvas.before:
         Color:
@@ -430,6 +459,7 @@ MDScreenManager:
 
     MDFloatLayout:
         id: floatlayout_id
+
         Image:
             id: background_gif
             source: root.gif_source if md_list.children == [] else root.gif_source_2
@@ -442,24 +472,10 @@ MDScreenManager:
         MDScrollView:
             size_hint: (0.98, 0.81)
             pos_hint: {"center_x": 0.5, "center_y": 0.41} 
-            do_scroll_y: False
+            effect_cls: "ScrollEffect"
             MDList:
                 id: md_list
                 padding: 0
-
-        MDFloatingActionButtonSpeedDial:
-            id: speed_dial
-            # icon: "arrow-expand-up"
-            # markup: True
-            data: root.data
-            root_button_anim: True
-            # hint_animation: True
-            label: True
-            label_text_color: (1,1,1,1)
-            label_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])
-            label_radius: [12, 12, 12, 12]
-            color_icon_stack_button: (1,1,1,1)
-            color_icon_root_button: (1,1,1,1)
 
         MDLabel:
             font_size: self.width/8.5
@@ -475,7 +491,7 @@ MDScreenManager:
             font_size: self.width/13
             bold: True
             text: root.audiobook_primary_text if md_list.children == [] else ""
-            font_name: "assets/fonts/try2.ttf"
+            font_name: "assets/fonts/PlayfairDisplay-Bold.ttf"
             halign: 'center'
             size_hint_x: 0.9
             pos_hint: {'center_x':0.5, 'center_y':0.50}
@@ -501,9 +517,32 @@ MDScreenManager:
             height: root.height/20
             hint_text: "Author, title or series" 
             pos_hint: {"center_x": .5, "center_y": .85}
-            on_text: root.set_list_md_icon(self.text, True)        
+            on_text: root.set_list_md_icon(self.text, True) 
 
-        
+        MDIconButton:
+            icon: "attachment-plus"
+            theme_icon_color: "Custom"
+            icon_color: (1,1,1,1)
+            icon_size: "28sp"
+            elevation: 6
+            md_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])  
+            pos_hint: {"center_x":0.91, "center_y": .07}
+            on_release: self.parent.parent.callback(self)
+
+        MDIconButton:
+            id: color_palette
+            icon: "palette"
+            theme_icon_color: "Custom"
+            icon_color: (1,1,1,1)
+            icon_size: "28sp"
+            elevation: 6
+            md_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])  
+            pos_hint: {"center_x":0.91, "center_y": .14}
+            on_release: self.parent.parent.callback(self)
+  
+
+
+
 
 <PlayScreen>
     name: 'playscreen'
@@ -550,7 +589,7 @@ MDScreenManager:
             theme_icon_color: "Custom"
             icon_color: 1,1,1,1
             on_release:
-                app.sleep_menu.open()
+                app.sleep_button_fun(self)
 
 
         MagicCard:
@@ -753,7 +792,7 @@ class Gradient(object):
     @staticmethod
     def horizontal(*args):
         texture = Texture.create(size=(len(args), 1), colorfmt='rgba')
-        buf = bytes([int(v * 255) for v in chain(*args)])  # flattens
+        buf = bytes([int(v * 255) for v in chain(*args)])  # flattens"
 
         texture.blit_buffer(buf, colorfmt='rgba', bufferfmt='ubyte')
         return texture
@@ -770,8 +809,12 @@ class Gradient(object):
 class ListItemWithCheckbox(TwoLineAvatarIconListItem):
     text = StringProperty()
     secondary_text = StringProperty()
+    sliding_text = StringProperty()
+    secondary_theme_text_color = StringProperty()
+    secondary_text_color = ColorProperty()
     source = ObjectProperty()
     mb_text = StringProperty()
+    new_icon = StringProperty("")
     _txt_right_pad = NumericProperty("0dp")
 
     def __init__(self, *args, **kwargs):
@@ -846,6 +889,7 @@ class Marquee(MDFloatLayout):
         self.anim.start(self.ids.label)
 
 
+
 class MySlider(MDSlider):
     sound = ObjectProperty(None)
 
@@ -865,6 +909,7 @@ class MySlider(MDSlider):
             return ret_val
         else:
             return super(MySlider, self).on_touch_up(touch)
+
 
 
 class PlayScreen(MDScreen):
@@ -918,11 +963,11 @@ class PlayScreen(MDScreen):
     def play_pause(self, *args):
         if self.updater is None:
             # schedule updates to the slider
-            self.updater = Clock.schedule_interval(self.update_slider, 0.5)
+            self.updater = Clock.schedule_interval(self.update_slider, 1)
 
         if self.paused == True:
-            self.audiobook.seek(self.stop_position)
             self.audiobook.play()
+            self.audiobook.seek(self.stop_position)
             self.playscreen_ids.play_pause_button.icon = "pause-circle"
             self.paused = False
         elif self.paused == False:
@@ -934,42 +979,22 @@ class PlayScreen(MDScreen):
                 self.audiobook.stop()
                 self.playscreen_ids.play_pause_button.icon = "play-circle"
                 self.paused = True
+                # stop the slider from updating the value
+                self.updater.cancel()
+                self.updater = None
 
     def update_slider(self, *args):
+        # if the sound has finished, stop the updating
+        if self.audiobook.state == 'stop' and self.updater != None:
+            self.updater.cancel()
+            self.updater = None
         # update slider
         self.slider.value = self.audiobook.get_pos()
         # updating the sound position label as well here
         self.playscreen_ids.sound_pos_label.text = time.strftime(
             "%H:%M:%S", time.gmtime(self.audiobook.get_pos()))
-        # if the sound has finished, stop the updating
-        if self.audiobook.state == 'stop' and self.updater != None:
-            self.updater.cancel()
-            self.updater = None
+        
 
-
-class WelcomeScreen(MDScreen):
-
-    def load(self, direction, *args):
-        if direction == 'skip':
-            self.ids.carousel.load_slide(self.ids.carousel.slides[2])
-            for i in self.ids.swipe_dots.children:
-                i.icon_color = (0, 0, 0, 0.6)
-            self.ids.swipe_dots.children[0].icon_color = utils.get_color_from_hex(
-                colors[MDApp.get_running_app().theme_cls.primary_palette]['500'])
-        elif direction == 'next' or direction == 'start':
-            self.ids.carousel.load_next(mode='next')
-
-            if self.ids.carousel.index != 2:
-                for i in self.ids.swipe_dots.children:
-                    i.icon_color = (0, 0, 0, 0.6)
-                list(reversed(self.ids.swipe_dots.children))[self.ids.carousel.index+1].icon_color = utils.get_color_from_hex(
-                    colors[MDApp.get_running_app().theme_cls.primary_palette]['500'])
-
-            if self.ids.carousel.index == 1:
-                self.ids.start_buttons.children[1].pos = (
-                    -dp(100),  self.height/14)
-                self.ids.start_buttons.children[0].text = "START"
-                print(self.ids.carousel.index)
 
 
 class MenuScreen(MDScreen):
@@ -980,25 +1005,15 @@ class MenuScreen(MDScreen):
 
     def on_enter(self, *kwargs):
 
-        self.data = {
-            'Change Theme': [
-                'palette',
-                "on_release", lambda x: self.callback(x),
-            ],
-            'Add Audiobook': [
-                'attachment-plus',
-                "on_release", lambda x: self.callback(x),
-            ],
-        }
-
         with open('app data/book link dict.yaml', 'r') as file:
             self.dict_book_link = yaml.safe_load(file)
 
-        self.downloaded_audiobook_list = []
+        # self.downloaded_audiobook_list = []
+
 
     def remove_item(self, instance):
 
-        if os.path.exists(f"app data/audiobooks/{instance.text.lower()}"):
+        if os.path.exists(f"app data/app dapp data/downapp data/downata/down data/downbooks/{instance.text.lower()}"):
             shutil.rmtree(f"app data/audiobooks/{instance.text.lower()}")
 
         with open(r"app data/downloaded_audiobooks.dat", "rb+") as file_object:
@@ -1022,15 +1037,14 @@ class MenuScreen(MDScreen):
         screen_accessed = MDApp.get_running_app().screens.get_screen('menuscreen')
 
         if x.icon != 'attachment-plus':
-            MDApp.get_running_app().theme_menu.caller = MDApp.get_running_app(
-            ).screens.get_screen('menuscreen').ids.speed_dial.children[4]
+            MDApp.get_running_app().theme_menu.caller = self.ids.color_palette
             MDApp.get_running_app().theme_menu.open()
         else:
             self.show_download_list()
 
     def show_download_list(self, *kwargs):
 
-        already_downloaded_audiobooks = []
+        self.already_downloaded_audiobooks = []
 
         if os.path.isfile("app data/downloaded_audiobooks.dat"):
 
@@ -1038,7 +1052,7 @@ class MenuScreen(MDScreen):
 
                 try:
                     while True:
-                        already_downloaded_audiobooks.append(
+                        self.already_downloaded_audiobooks.append(
                             pickle.load(openfile))
                 except EOFError:
                     pass
@@ -1047,10 +1061,13 @@ class MenuScreen(MDScreen):
 
         for i in self.dict_book_link.keys():
 
-            if i not in already_downloaded_audiobooks:
+            if i not in self.already_downloaded_audiobooks:
 
-                dialog_items.append(ListItemWithCheckbox(text=f'[size=14][font=DejaVuSans]{i.title()}[/font][/size]',
-                                                         secondary_text=f"[size=12][font=assets/fonts/Roboto-LightItalic.ttf]{self.dict_book_link[i][0].title()}[/font][/size]",
+                dialog_items.append(ListItemWithCheckbox(text=f'[size=14][font=DejaVuSans]  {i.title()}[/font][/size]',
+                                                         secondary_text="sffsfsafasfasfas",
+                                                         secondary_theme_text_color= "Custom",
+                                                         secondary_text_color= (0,0,0,0),
+                                                         sliding_text=f"{self.dict_book_link[i][0].title()}",
                                                          source=self.dict_book_link[i][1],
                                                          mb_text=self.dict_book_link[i][3],
                                                          divider='Inset',
@@ -1069,6 +1086,21 @@ class MenuScreen(MDScreen):
             items=dialog_items,
             buttons=[
                 MDRectangleFlatIconButton(
+                    text= "[font=assets/fonts/Aclonica.ttf][size=14][b]UPDATE LIST[/b][/size][/font]",
+                    icon= "update",
+                    md_bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app(
+                    ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
+                    theme_text_color="Custom",
+                    theme_icon_color="Custom",
+                    icon_color=(1, 1, 1, 1),
+                    text_color=(1, 1, 1, 1),
+                    line_color=utils.get_color_from_hex(
+                        colors[MDApp.get_running_app().theme_cls.primary_palette]['700']),
+                    on_release=lambda x: self.update_download_list()
+
+                ),
+
+                MDRectangleFlatIconButton(
                     icon='close',
                     md_bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app(
                     ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
@@ -1078,7 +1110,7 @@ class MenuScreen(MDScreen):
                     text_color=(1, 1, 1, 1),
                     line_color=utils.get_color_from_hex(
                         colors[MDApp.get_running_app().theme_cls.primary_palette]['700']),
-                    text="[font=assets/fonts/Aclonica.ttf][size=14][b]CANCEL[/b][/size][/font]",
+                    text="[font=assets/fonts/Aclonica.ttf][size=14][b]CLOSE[/b][/size][/font]",
                     padding=[4, 4],
                     on_release=lambda x: self.dialogx.dismiss()
 
@@ -1229,8 +1261,10 @@ class MenuScreen(MDScreen):
 
             self.stop_scheduled_function()
 
+
     def stop_scheduled_function(self, *args):
         Clock.unschedule(self.download_status_interval)
+
 
     def thread_pool_download_function(self, complete_url_list_with_filepath, mdlist_items):
 
@@ -1307,7 +1341,7 @@ class MenuScreen(MDScreen):
                     f"[b]{round(download_percentage,1)}%[/b]"
             else:
                 for i in range(5, 0, -1):
-                    time.sleep(5)
+                    time.sleep(1)
                     req_label_button_widget.text = "[font=assets/fonts/try4.ttf]Download Finished! [/font]" + \
                         f"[b]{100.0}%[/b]" + \
                         f"\n[font=assets/fonts/try4.ttf][i]This Dialog box will self close in[/i][/font] [b]{i}[/b]"
@@ -1316,6 +1350,7 @@ class MenuScreen(MDScreen):
 
         with ThreadPoolExecutor() as executor:
             executor.map(download_file, complete_url_list_with_filepath)
+
 
     def insert_audiobook_parts(self, instance):
         MDApp.get_running_app().screens.get_screen(
@@ -1330,6 +1365,64 @@ class MenuScreen(MDScreen):
                                           'playscreen').load_audiobook(int(x.text.replace('Part-', '').lower()))
                                           )
             )
+
+    def check_internet_connection(self, *kwargs):
+        url = "https://www.google.com"
+        timeout = 2
+        try:
+            request = requests.get(url,
+                                timeout=timeout)
+            self.internet_status = 'on'
+ 
+        except (requests.ConnectionError,
+                requests.Timeout) as exception:
+            self.internet_status = 'off'
+
+
+    def update_download_list(self, *kwargs):
+
+        self.check_internet_connection()
+        if self.internet_status != 'off':
+    
+            returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml', headers={
+                                            'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'})
+            
+            content = yaml.safe_load(returned_response.content)
+            
+            self.dict_book_link = content
+
+            with open("app data/book link dict.yaml","w") as file_object:
+                yaml.dump(content, file_object, sort_keys=False)
+
+            newly_added_audiobooks = [i for i in list(self.dict_book_link.keys()) if i not in list(old_list_of_audiobooks)]
+            
+        
+            for i in newly_added_audiobooks:
+                self.dialogx.children[0].children[2].children[0].add_widget(
+                    ListItemWithCheckbox(text=f'[size=14][font=DejaVuSans]{i.title()}[/font][/size]',
+                                                            secondary_text="sffsfsafasfasfas",
+                                                            secondary_theme_text_color= "Custom",
+                                                            secondary_text_color= (0,0,0,0),
+                                                            sliding_text=f"{self.dict_book_link[i][0].title()}",
+                                                            source=self.dict_book_link[i][1],
+                                                            mb_text=self.dict_book_link[i][3],
+                                                            new_icon='new-box',
+                                                            divider='Inset',
+                                                            divider_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])),
+
+                    len(self.dialogx.children[0].children[2].children[0].children)
+                )
+        
+        else:
+            Snackbar(text=f"No internet! Check your connection!", snackbar_x="10dp", bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
+                                                 snackbar_y="10dp", size_hint_x=(self.screens.get_screen('menuscreen').width - 20) / self.screens.get_screen('menuscreen').width, elevation=2).open()
+
+
+
+        
+
+    
+
 
     def part_highlight(self, instance):
         for i in instance.parent.parent.children[0].children:
@@ -1357,10 +1450,34 @@ class MenuScreen(MDScreen):
                 )
 
 
-sm = MDScreenManager()
-sm.add_widget(WelcomeScreen(name='welcomescreen'))
-sm.add_widget(MenuScreen(name='menuscreen'))
-sm.add_widget(PlayScreen(name='playscreen'))
+class WelcomeScreen(MDScreen):
+
+    def load(self, direction, *args):
+        if direction == 'skip':
+            self.ids.carousel.load_slide(self.ids.carousel.slides[2])
+            for i in self.ids.swipe_dots.children:
+                i.icon_color = (0, 0, 0, 0.6)
+            self.ids.swipe_dots.children[0].icon_color = utils.get_color_from_hex(
+                colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_light_hue])
+            self.ids.start_buttons.children[1].pos = (
+                    -dp(100),  self.height/14)
+            self.ids.start_buttons.children[0].text = "START"
+            
+        elif direction == 'next' or direction == 'start':
+            self.ids.carousel.load_next(mode='next')
+
+            if self.ids.carousel.index != 2:
+                for i in self.ids.swipe_dots.children:
+                    i.icon_color = (0, 0, 0, 0.6)
+                list(reversed(self.ids.swipe_dots.children))[self.ids.carousel.index+1].icon_color = utils.get_color_from_hex(
+                    colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_light_hue])
+
+            if self.ids.carousel.index == 1:
+                self.ids.start_buttons.children[1].pos = (
+                    -dp(100),  self.height/14)
+                self.ids.start_buttons.children[0].text = "START"
+
+
 
 
 class MainApp(MDApp):
@@ -1368,10 +1485,16 @@ class MainApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        self.sm = ScreenManager()
+        self.sm.add_widget(WelcomeScreen(name='welcomescreen'))
+        self.sm.add_widget(MenuScreen(name='menuscreen'))
+        self.sm.add_widget(PlayScreen(name='playscreen'))
+
         # defining color themes for the app
-        self.theme_cls.theme_style_switch_animation = True
-        self.theme_cls.theme_style_switch_animation_duration = 0.5
-        self.theme_cls.primary_palette = "Cyan"
+        self.theme_cls.material_style = "M3"   #yeah don`t really see any change, except for the change that it brings out in the shape of floatingactionbutton. Otherwise, it is pretty useless ig
+        self.theme_cls.theme_style_switch_anmation = True
+        self.theme_cls.theme_style_switch_animation_duration = 0.56060
+        self.theme_cls.primary_palette = "Pink"
         self.theme_cls.primary_hue = "500"
         self.theme_cls.primary_dark_hue = "900"
         self.theme_cls.primary_light_hue = "200"
@@ -1382,12 +1505,14 @@ class MainApp(MDApp):
         self.screens = Builder.load_string(KV)
 
         # returned_response = requests.get(r'https://raw.githubusercontent.com/R-Anurag/kivy-audiobook-app/main/assets/links/book%20link%20dict.yaml', headers={
-        #                                  'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'})
-
+        #                                  'user-agent': 'Mozilla/4.0 (compatible; MS60IE 5.5; Windows NT)'})
+    
         # self.dict_book_link = yaml.safe_load(returned_response.content)
 
         with open('app data/book link dict.yaml', 'r') as file:
             self.dict_book_link = yaml.safe_load(file)
+
+        (self.dict_book_link)
 
         self.downloaded_audiobook_list = []
 
@@ -1402,7 +1527,7 @@ class MainApp(MDApp):
                     pass
 
         for i in self.downloaded_audiobook_list:
-            MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.add_widget(
+            self.screens.get_screen('menuscreen').ids.md_list.add_widget(
                 SwipeToDeleteItem(text=f"{i}".title(
                 ), secondary_text=f"{self.dict_book_link[i][0]}", source=f"{self.dict_book_link[i][1]}")
             )
@@ -1436,8 +1561,7 @@ class MainApp(MDApp):
             # max_height=dp(112),
             # border_margin=dp(24),
             radius=[24, 4, 24, 4],
-            background_color=utils.get_color_from_hex(colors[MDApp.get_running_app(
-            ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
+            background_color=utils.get_color_from_hex(colors[self.theme_cls.primary_palette][self.theme_cls.primary_hue])
         )
 
         # _________________________________________________________________________________
@@ -1470,19 +1594,52 @@ class MainApp(MDApp):
             border_margin=dp(20),
             # border_margin=dp(24),
             radius=[24, 4, 24, 4],
-            background_color=utils.get_color_from_hex(colors[MDApp.get_running_app(
-            ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
+            background_color=utils.get_color_from_hex(colors[self.theme_cls.primary_palette][self.theme_cls.primary_hue])
         )
 
+
+    def build(self):
+        return self.screens
+
+
+    def sleep_button_fun(self, instance):
+
+        if instance.icon_color == utils.get_color_from_hex(
+            colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_dark_hue]):
+            
+            self.change_sleep_button_color()
+
+            Clock.unschedule(self.make_playing_audio_pause)
+
+            Snackbar(text=f"The Audio stop-timer is removed!", snackbar_x="10dp", bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
+                                                 snackbar_y="10dp", size_hint_x=(self.screens.get_screen('menuscreen').width - 20) / self.screens.get_screen('menuscreen').width, elevation=2).open()
+
+        else:
+            self.sleep_menu.open()
+
+
+    def make_playing_audio_pause(self, *kwargs):
+        if self.screens.get_screen('playscreen').audiobook.state == 'play':
+            #who knows if the user stops the audio himself before the timer hits
+            self.screens.get_screen('playscreen').play_pause()
+        self.change_sleep_button_color()
+
+
     def sleep_menu_callback(self, instance):
-        if instance != 'End of Episode':
-            Clock.schedule_once(lambda x: self.screens.get_screen(
-                'playscreen').play_pause(), instance*60)
-            Clock.schedule_once(
-                lambda x: self.change_sleep_button_color, instance*60)
+
+        Clock.schedule_once(self.make_playing_audio_pause, instance)
+        
         self.screens.get_screen('playscreen').ids.sleep_timer_button.icon_color = utils.get_color_from_hex(
             colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_dark_hue])
+        
+        if self.screens.get_screen('playscreen').audiobook.state == 'stop':
+            self.screens.get_screen("playscreen").play_pause()
+        else:
+            #The audio is already playing so wouldn`t need playing it.. FOR it to be stopped later at the timer ending
+            pass
+
         self.sleep_menu.dismiss()
+
 
     def theme_color_menu_callback(self, selected_color):
         self.theme_cls.primary_palette = selected_color
@@ -1492,18 +1649,22 @@ class MainApp(MDApp):
         ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
         self.sleep_menu.dismiss()
 
+
     def change_sleep_button_color(self, *args):
         self.screens.get_screen(
             'playscreen').ids.sleep_timer_button.icon_color = (1, 1, 1, 1)
+        
+
+    def on_start(self):
+        if not os.path.exists("app data/downloaded_audiobooks.dat"):
+            self.sm.current = 'welcomescreen'
+
 
     def on_stop(self):
         try:
             self.screens.get_screen('playscreen').audiobook.unload()
         except AttributeError:
             pass
-
-    def build(self):
-        return self.screens
 
 
 MainApp().run()
