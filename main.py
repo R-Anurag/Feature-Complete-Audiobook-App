@@ -1576,7 +1576,7 @@ class MainApp(MDApp):
         self.theme_cls.material_style = "M3"
         self.theme_cls.theme_style_switch_anmation = True
         self.theme_cls.theme_style_switch_animation_duration = 0.56060
-        self.theme_cls.primary_palette = "Pink"
+        self.theme_cls.primary_palette = "Cyan"
         self.theme_cls.primary_hue = "500"
         self.theme_cls.primary_dark_hue = "900"
         self.theme_cls.primary_light_hue = "200"
