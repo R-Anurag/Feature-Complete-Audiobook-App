@@ -1072,7 +1072,7 @@ class MenuScreen(MDScreen):
 
     def remove_item(self, instance):
 
-        if os.path.exists(f"app data/app dapp data/downapp data/downata/down data/downbooks/{instance.text.lower()}"):
+        if os.path.exists(f"app data/audiobooks/{instance.text.lower()}"):
             shutil.rmtree(f"app data/audiobooks/{instance.text.lower()}")
 
         with open(r"app data/downloaded_audiobooks.dat", "rb+") as file_object:
