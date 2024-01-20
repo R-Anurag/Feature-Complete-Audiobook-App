@@ -1188,7 +1188,7 @@ class MenuScreen(MDScreen):
     def get_active_boxes(self, *kwargs):
         
         global counter
-        counter = 5
+        counter = 10
 
         # Storing the active checkboxes in self.selected_books
         self.mdlist_items = self.dialogx.children[0].children[2].children[0].children
@@ -1197,7 +1197,7 @@ class MenuScreen(MDScreen):
         if self.selected_books != []:
             if self.check_internet_connection() == 'off':
                 Snackbar(text=f"There is trouble connecting to Internet!", snackbar_x="10dp", bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]), snackbar_y="10dp", size_hint_x=(self.width - 20) / self.width, elevation=2).open()
-                Clock.schedule_once(self.implementCounterEnd, 3)
+                Clock.schedule_once(self.implementCounterEnd, 5)
             else:
                 # This is a list containing nested list for downloading
                 complete_url_list_with_filepath = []
@@ -1231,7 +1231,7 @@ class MenuScreen(MDScreen):
                 for i in self.mdlist_items:
                     if i.text.replace('[size=16sp][font=DejaVuSans]', '').replace('[/font][/size]', '').lower().strip() in self.selected_books:
                         i.add_widget(
-                            MDSpinner(size_hint=(None, None), size=(dp(24), dp(24)), pos_hint={"center_x": 0.90, "center_y": 0.5}, active=True, line_width=dp(3), palette=[
+                            MDSpinner(size_hint=(None, None), size=(dp(24), dp(24)), pos_hint={"center_x": 0.88, "center_y": 0.52}, active=True, line_width=dp(3), palette=[
                                 [0.28627450980392155, 0.8431372549019608,
                                     0.596078431372549, 1],
                                 [0.3568627450980392, 0.3215686274509804,
@@ -1294,7 +1294,7 @@ class MenuScreen(MDScreen):
 
             if variable in self.selected_books and variable not in self.downloaded_audiobooks:
 
-                if not downloading_size_dict[f"{variable}_downloaded_size"] < downloading_size_dict[f"{variable}_full_size"] - 2:
+                if not downloading_size_dict[f"{variable}_downloaded_size"] < downloading_size_dict[f"{variable}_full_size"] - 20:
 
                     self.downloaded_audiobooks.append(variable)
 
@@ -1305,11 +1305,15 @@ class MenuScreen(MDScreen):
                     i.add_widget(
                         MDIconButton(
                             icon="checkbox-marked-circle",
-                            pos_hint={"center_x": 0.92, "center_y": 0.5}, theme_icon_color="Custom",
+                            pos_hint={"center_x": 0.88, "center_y": 0.52}, theme_icon_color="Custom",
                             icon_color=utils.get_color_from_hex(
                                 colors[MDApp.get_running_app().theme_cls.primary_palette]['700'])
                         )
                     )
+
+                    i.children[1].text = "[size=10sp]"+str(
+                                    downloading_size_dict[f"{variable}_full_size"])+"/ [/size]"
+                        
 
         if set(self.selected_books) == set(self.downloaded_audiobooks):
             with open(r"app data/downloaded_audiobooks.dat", "ab") as file:
@@ -1400,13 +1404,13 @@ class MenuScreen(MDScreen):
         global downloading_size_dict
 
         # Updating the button label in MDDialog box
-        if combined_download_percentage < 99:
+        if combined_download_percentage < 95:
             self.label_button.text = "[font=assets/fonts/try4.ttf]Downloading... [/font]" + \
                 f"[b]{round(combined_download_percentage, 1)}%[/b]"
         else:
             Clock.unschedule(self.updateTotalDownloadingPercentage)
             Clock.schedule_interval(self.closingCounter, 1)
-            Clock.schedule_once(self.implementCounterEnd, 6) 
+            Clock.schedule_once(self.implementCounterEnd, 11) 
 
         # updating the respective download percetnage of audiobooks
         for i in downloading_size_dict:
