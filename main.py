@@ -645,10 +645,11 @@ MDScreenManager:
 
         AsyncImage:
             id: album_picture
-            size_hint: (1, 0.75)
+            size_hint: (0.7, 0.50)
             source: ""
             radius: (6, 6, 6, 6)
             minimap: True
+            fit_mode: "contain"
             pos_hint: {"center_x": .5, "center_y": .63}
             
 
@@ -1336,6 +1337,8 @@ class MenuScreen(MDScreen):
 
         def download_file(url_filepath_list):
 
+            print(url_filepath_list)
+
             session = requests.Session()
 
             response = session.get(url_filepath_list[2], params={
@@ -1369,8 +1372,6 @@ class MenuScreen(MDScreen):
                     downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"] += len(
                         chunk)/(1024*1024)
 
-                    f.write(chunk)
-
                     combined_downloaded_size = sum(
                         [downloading_size_dict[i] for i in downloading_size_dict.keys() if i.endswith("_downloaded_size")])
 
@@ -1378,6 +1379,8 @@ class MenuScreen(MDScreen):
                         [downloading_size_dict[i] for i in downloading_size_dict.keys() if i.endswith("_full_size")])
 
                     combined_download_percentage = combined_downloaded_size / combined_full_size * 100
+
+                    f.write(chunk)
 
             else:
                 f.close()
