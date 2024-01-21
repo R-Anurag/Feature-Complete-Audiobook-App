@@ -43,7 +43,7 @@ import yaml
 import time
 from kivymd.uix.button import MDRectangleFlatIconButton, MDRaisedButton, MDIconButton, MDFlatButton
 import requests
-
+from functools import partial
 from concurrent.futures import ThreadPoolExecutor
 from kivymd.uix.label import MDLabel
 from kivymd.uix.spinner.spinner import MDSpinner
@@ -645,7 +645,7 @@ MDScreenManager:
 
         AsyncImage:
             id: album_picture
-            size_hint: (0.7, 0.50)
+            size_hint: (0.65, 0.40)
             source: ""
             radius: (6, 6, 6, 6)
             minimap: True
@@ -730,8 +730,7 @@ MDScreenManager:
                 theme_icon_color: "Custom"
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
                 on_release:
-                    self.parent.parent.parent.audiobook.seek(self.parent.parent.parent.audiobook.get_pos() - 10) if self.parent.parent.parent.audiobook.get_pos() > 0.1 else self.parent.parent.parent.audiobook.get_pos()
-                    #note that the else part just loses the value and is done just to complete the if else structure whichw as necessary
+                    root.forward_rewind(self.icon)
 
             MDIconButton:
                 id: play_pause_button
@@ -753,8 +752,7 @@ MDScreenManager:
                 theme_icon_color: "Custom"
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
                 on_release:
-                    self.parent.parent.parent.audiobook.seek(self.parent.parent.parent.audiobook.get_pos() + 10) if self.parent.parent.parent.audiobook.get_pos() > 0.1 else 0
-                    #note that the else part is done just to complete the if else structure whichw as necessary
+                    root.forward_rewind(self.icon)
             
             MDIconButton:
                 icon: "skip-previous"
@@ -1022,20 +1020,45 @@ class PlayScreen(MDScreen):
 
         self.play_pause()
 
-    def play_pause(self, *args):
+    
+    def forward_rewind(self, icon):
+
         if self.updater is None:
             # schedule updates to the slider
             self.updater = Clock.schedule_interval(self.update_slider, 1)
 
         if self.paused == True:
+            self.audiobook.seek(self.stop_position)
             self.audiobook.play()
             self.audiobook.seek(self.stop_position)
             self.playscreen_ids.play_pause_button.icon = "pause-circle"
             self.paused = False
+                
+        if self.audiobook.get_pos() > 0.1:
+            if icon == "rewind-10":
+                self.audiobook.seek(self.audiobook.get_pos() - 10) 
+            else:
+                self.audiobook.seek(self.audiobook.get_pos() + 10)
+
+    def play_pause(self, *args):
+    
+        if self.updater is None:
+            # schedule updates to the slider
+            self.updater = Clock.schedule_interval(self.update_slider, 1)
+
+        if self.paused == True:
+            self.audiobook.seek(self.stop_position)
+            self.audiobook.play()
+            self.audiobook.seek(self.stop_position)
+            self.playscreen_ids.play_pause_button.icon = "pause-circle"
+            self.paused = False
+        
         elif self.paused == False:
+        
             if self.audiobook.state == "stop":
                 self.audiobook.play()
                 self.playscreen_ids.play_pause_button.icon = "pause-circle"
+        
             elif self.audiobook.state == "play":
                 self.stop_position = self.audiobook.get_pos()
                 self.audiobook.stop()
@@ -1044,6 +1067,7 @@ class PlayScreen(MDScreen):
                 # stop the slider from updating the value
                 self.updater.cancel()
                 self.updater = None
+
 
     def update_slider(self, *args):
         # if the sound has finished, stop the updating
@@ -1185,6 +1209,41 @@ class MenuScreen(MDScreen):
     def dialog_dismiss(self, obj):
     	self.dialogx.dismiss(force=True)
 
+    def cancel_download_function(self, *kwargs):
+        
+        Snackbar(text=f"Cancelling download...", snackbar_x="10dp", bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]), snackbar_y="10dp", size_hint_x=(self.width - 20) / self.width, elevation=2).open()
+
+        for i in self.dialogx.children[0].children[0].children[0].children:
+            if i.text == "Cancel Download":
+                i.disabled = True
+
+        global flag
+        flag = False
+
+        for i in self.mdlist_items:
+
+            variable = i.text.replace('[size=16sp][font=DejaVuSans]', '').replace(
+                '[/font][/size]', '').lower().strip()
+
+            if variable in self.selected_books and variable not in self.downloaded_audiobooks:
+
+                # removing the spinner
+                i.remove_widget(i.children[1])
+
+                # adding the cancelled icon
+                i.add_widget(
+                    MDIconButton(
+                        icon="close-octagon",
+                        pos_hint={"center_x": 0.88, "center_y": 0.52}, theme_icon_color="Custom",
+                        icon_color=utils.get_color_from_hex(
+                            colors['Red']['700'])
+                    )
+                )
+
+        Clock.unschedule(self.updateTotalDownloadingPercentageSchedulerEvent)
+        self.closingCounterSchedulerEvent = Clock.schedule_interval(partial(self.closingCounter,"download_cancelled"), 1)
+        Clock.schedule_once(self.implementCounterEnd, 11) 
+
     def get_active_boxes(self, *kwargs):
         
         global counter
@@ -1197,8 +1256,9 @@ class MenuScreen(MDScreen):
         if self.selected_books != []:
             if self.check_internet_connection() == 'off':
                 Snackbar(text=f"There is trouble connecting to Internet!", snackbar_x="10dp", bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]), snackbar_y="10dp", size_hint_x=(self.width - 20) / self.width, elevation=2).open()
-                Clock.schedule_once(self.implementCounterEnd, 5)
+                Clock.schedule_once(self.dialog_dismiss, 5)
             else:
+                
                 # This is a list containing nested list for downloading
                 complete_url_list_with_filepath = []
                 for i in self.dict_book_link.keys():
@@ -1246,12 +1306,31 @@ class MenuScreen(MDScreen):
                 # Adding the Downloading label button to MDDialog
                 self.label_button = MDRaisedButton(
                     text="",
-                    md_bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]), font_size="12sp",
+                    md_bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_dark_hue]), font_size="12sp",
                     theme_text_color="Custom", text_color=(1, 1, 1, 1), padding=[8, 0], elevation=2, ripple_scale=0, size_hint=(None, None), size=(100, 20)
                 )
 
+                self.cancel_download_button = MDRectangleFlatIconButton(
+                    icon='close-circle-outline',
+                    md_bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app(
+                    ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]),
+                    theme_text_color="Custom",
+                    theme_icon_color="Custom",
+                    icon_color=(1, 1, 1, 1),
+                    text_color=(1, 1, 1, 1),
+                    line_color=utils.get_color_from_hex(
+                        colors[MDApp.get_running_app().theme_cls.primary_palette]['700']),
+                    text="[font=assets/fonts/Aclonica.ttf][size=12sp][b]Cancel Download[/b][/size][/font]",
+                    padding=[4, 4], on_press=self.cancel_download_function
+                )
+                
+                self.dialogx.children[0].children[0].children[0].add_widget(
+                    self.cancel_download_button)
+
                 self.dialogx.children[0].children[0].children[0].add_widget(
                     self.label_button)
+                
+            
 
                 # Adding downloading percentage label to md_list
                 for i in self.mdlist_items:
@@ -1278,7 +1357,7 @@ class MenuScreen(MDScreen):
                 self.thread.start()
 
                 self.downloaded_audiobooks = []
-                Clock.schedule_interval(self.check_downloaded_status, 0.5)
+                self.checkDownloadedStatusSchedulerEvent = Clock.schedule_interval(self.check_downloaded_status, 0.5)
                 
         
         else:
@@ -1294,7 +1373,7 @@ class MenuScreen(MDScreen):
 
             if variable in self.selected_books and variable not in self.downloaded_audiobooks:
 
-                if not downloading_size_dict[f"{variable}_downloaded_size"] < downloading_size_dict[f"{variable}_full_size"] - 20:
+                if not downloading_size_dict[f"{variable}_downloaded_size"] < downloading_size_dict[f"{variable}_full_size"] - 2:
 
                     self.downloaded_audiobooks.append(variable)
 
@@ -1314,23 +1393,28 @@ class MenuScreen(MDScreen):
                     i.children[1].text = "[size=10sp]"+str(
                                     downloading_size_dict[f"{variable}_full_size"])+"/ [/size]"
                         
+                    
+                    with open(r"app data/downloaded_audiobooks.dat", "ab") as file:
 
-        if set(self.selected_books) == set(self.downloaded_audiobooks):
-            with open(r"app data/downloaded_audiobooks.dat", "ab") as file:
-                for i in self.selected_books:
-                    MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.add_widget(
-                        SwipeToDeleteItem(text=f"{i}".title(
-                        ), secondary_text=f"{self.dict_book_link[i][0]}", source=f"{self.dict_book_link[i][1]}")
-                    )
+                        MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.add_widget(
+                            SwipeToDeleteItem(text=f"{variable}".title(
+                            ), secondary_text=f"{self.dict_book_link[variable][0]}", source=f"{self.dict_book_link[variable][1]}")
+                        )
 
-                    pickle.dump(i, file)
+                        pickle.dump(variable, file)
 
+        if set(self.selected_books) == set(self.downloaded_audiobooks) or flag == False:
             self.stop_scheduled_function()
 
     def stop_scheduled_function(self, *args):
-        Clock.unschedule(self.check_downloaded_status)
+        Clock.unschedule(self.checkDownloadedStatusSchedulerEvent)
 
     def thread_pool_download_function(self, complete_url_list_with_filepath, mdlist_items):
+
+        global combined_download_percentage
+        global flag
+        flag = True
+        combined_download_percentage = 0
 
         def get_confirm_token(response):
             for key, value in response.cookies.items():
@@ -1340,8 +1424,6 @@ class MenuScreen(MDScreen):
             return None
 
         def download_file(url_filepath_list):
-
-            print(url_filepath_list)
 
             session = requests.Session()
 
@@ -1357,8 +1439,9 @@ class MenuScreen(MDScreen):
             save_response_content(response, url_filepath_list)
 
         def save_response_content(response, url_filepath_list):
+            
             global combined_download_percentage
-            global downloading_size_dict
+            global flag
             # download_filder_path contains the name of the file as well
             download_folder_path = os.path.join(
                 r'app data/audiobooks', url_filepath_list[0])
@@ -1372,7 +1455,6 @@ class MenuScreen(MDScreen):
             f = open(os.path.join(download_folder_path, filename)+'.mp3', "wb")
             for chunk in response.iter_content(CHUNK_SIZE):
                 if chunk:
-
                     downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"] += len(
                         chunk)/(1024*1024)
 
@@ -1385,11 +1467,14 @@ class MenuScreen(MDScreen):
                     combined_download_percentage = combined_downloaded_size / combined_full_size * 100
 
                     f.write(chunk)
+                
+                if not flag:
+                    return
 
             else:
                 f.close()
 
-        Clock.schedule_interval(
+        self.updateTotalDownloadingPercentageSchedulerEvent = Clock.schedule_interval(
             self.updateTotalDownloadingPercentage, 0.5)
 
         with ThreadPoolExecutor() as executor:
@@ -1399,19 +1484,20 @@ class MenuScreen(MDScreen):
             # executor.shutdown()
 
     def updateTotalDownloadingPercentage(self, *kwargs):
+ 
         global combined_download_percentage
-
         global downloading_size_dict
 
         # Updating the button label in MDDialog box
-        if combined_download_percentage < 95:
+        if combined_download_percentage < 99:
             self.label_button.text = "[font=assets/fonts/try4.ttf]Downloading... [/font]" + \
                 f"[b]{round(combined_download_percentage, 1)}%[/b]"
         else:
-            Clock.unschedule(self.updateTotalDownloadingPercentage)
-            Clock.schedule_interval(self.closingCounter, 1)
+            Clock.unschedule(self.updateTotalDownloadingPercentageSchedulerEvent)
+            self.closingCounterSchedulerEvent = Clock.schedule_interval(partial(self.closingCounter,"download_finished"), 1)
             Clock.schedule_once(self.implementCounterEnd, 11) 
-
+        
+        
         # updating the respective download percetnage of audiobooks
         for i in downloading_size_dict:
             if not i.endswith("_full_size"):
@@ -1423,20 +1509,25 @@ class MenuScreen(MDScreen):
                         f"{round(downloading_size_dict[f'{i.lower()}'],1)}") + "/" + "[/size]"
                 
 
-    def closingCounter(self, *kwargs):
+    def closingCounter(self, *args):
         global counter
-        self.label_button.text = "[font=assets/fonts/try4.ttf]Download Finished! [/font]" + \
-                    f"[b]{100.0}%[/b]" + \
-                    f"\n[font=assets/fonts/try4.ttf][i]This Dialog box will self close in[/i][/font] [b]{counter}[/b]"
         if counter > 0:
                 counter -= 1
 
+        caller = args[0]
+
+        if caller != "download_cancelled":
+            self.label_button.text = "[font=assets/fonts/try4.ttf]Download Finished! [/font]" + \
+                    f"[b]{100.0}%[/b]" + \
+                    f"\n[font=assets/fonts/try4.ttf][i]This Dialog box will self close in[/i][/font] [b]{counter}[/b]"
+        else:
+            self.label_button.text = "[font=assets/fonts/try4.ttf]Download Cancelled! [/font]" +  \
+                    f"\n[font=assets/fonts/try4.ttf][i]This Dialog box will self close in[/i][/font] [b]{counter}[/b]"
+
     def implementCounterEnd(self, *kwargs):
+        Clock.unschedule(self.closingCounterSchedulerEvent)
         self.dialogx.dismiss()
-        try:
-            Clock.unschedule(self.closingCounter)
-        except:
-            pass
+        
 
     def insert_audiobook_parts(self, instance):
 
@@ -1521,9 +1612,9 @@ class MenuScreen(MDScreen):
             ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
 
     def set_menu_screen_list_items(self, text="", search=False):
-
         if search:
             self.ids.md_list.clear_widgets()
+
             for audiobook in MDApp.get_running_app().downloaded_audiobook_list:
                 if text in audiobook.lower():
                     self.ids.md_list.add_widget(
