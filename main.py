@@ -172,22 +172,21 @@ kivy_string = '''
                 MDRectangleFlatIconButton:
                     icon: "menu-right-outline"
                     text: ""
-                    icon_size: "28sp"
+                    icon_size: "32sp"
                     theme_icon_color: "Custom"
                     icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_dark_hue])
                     md_bg_color: (0,0,0,0)
                     line_color: (0,0,0,0)
                     pos: self.parent.width/1.4, 1
                     padding: [self.parent.width/5, self.parent.height/1.5, self.parent.width/20, self.parent.height/3]
-                    on_release: 
-                        app.screens.get_screen('menuscreen').insert_audiobook_parts(root)
+                    on_press: 
+                        app.screens.get_screen('menuscreen').insert_audiobook_parts(root.text)
                         app.root.transition = SwapTransition()
                         app.root.current = 'playscreen'
-                        
-
+                                                
             
             ImageLeftWidget:
-                source: root.source if app.screens.get_screen('menuscreen').check_internet_connection() != 'off' else 'assets/images/appicon.png'
+                source: root.source
                 disabled: True
                 ripple_scale: 0
                 ripple_color: 0,0,0,0
@@ -534,21 +533,22 @@ MDScreenManager:
         MDFlatButton:
             id: here_label
             font_size: secondary_label.font_size
-            text: f'[color={colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue]}]here[/color]' if md_list.children == [] else ""
+            text: 'here' if md_list.children == [] else ""
             pos_hint: {'center_x':0.64, 'center_y':0.41}
-            disabled: True if md_list.children != [] else False
             ripple_scale: 0 if md_list.children != [] else 0.3
             padding: [0, ]
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex(colors["Cyan"]["500"])
             on_release:
                 background_gif.source = root.gif_source_3 if md_list.children == [] else root.gif_source_2
                 background_gif.pos_hint= {"center_x": 0.7, "center_y": 0.075} if md_list.children == [] else {"center_x": 0.84, "center_y": 0.92}
                 background_gif.size_hint= (0.4, 0.4) if md_list.children == [] else (0.27, 0.27) 
                 secondary_label.text= "Yes! That button right there!" if md_list.children == [] else ""
-                primary_label.text= "Press it" if md_list.children == [] else ""
+                primary_label.text= "Press the button to download available audiobooks" if md_list.children == [] else ""
                 self.text = ""
-                self.parent.remove_widget(self)
+                self.disabled = True
                 
-        
+                
         ClickableTextFieldRound:
             id: search_field
             size_hint_x: None
@@ -566,7 +566,7 @@ MDScreenManager:
             elevation: 6
             md_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])  
             pos_hint: {"center_x":0.91, "center_y": .06}
-            on_release:
+            on_press:
                 root.show_download_list()
 
         MDIconButton:
@@ -578,7 +578,7 @@ MDScreenManager:
             elevation: 6
             md_bg_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_hue])  
             pos_hint: {"center_x":0.91, "center_y": .14}
-            on_release: 
+            on_press: 
                 root.palette_button_fun()
   
 
@@ -645,7 +645,7 @@ MDScreenManager:
 
         AsyncImage:
             id: album_picture
-            size_hint: (0.65, 0.40)
+            size_hint: (0.6, 0.4)
             source: ""
             radius: (6, 6, 6, 6)
             minimap: True
@@ -726,10 +726,10 @@ MDScreenManager:
                 icon: "rewind-10"
                 icon_size: "40sp" 
                 pos_hint: {'center_x': 0.30, 'center_y': 0}
-                ripple_scale: 0.5
+                _no_ripple_effect: True
                 theme_icon_color: "Custom"
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
-                on_release:
+                on_press:
                     root.forward_rewind(self.icon)
 
             MDIconButton:
@@ -737,27 +737,27 @@ MDScreenManager:
                 icon: "play-circle"
                 icon_size: "68sp" 
                 pos_hint: {'center_x': 0.50, 'center_y': 0}
-                ripple_scale: 0.5
+                _no_ripple_effect: True
                 theme_icon_color: "Custom"
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
                 on_release:
-                    self.parent.parent.parent.play_pause()
+                    root.play_pause()
 
 
             MDIconButton:
                 icon: "fast-forward-10"
                 icon_size: "40sp"  
                 pos_hint: {'center_x': 0.70, 'center_y': 0}
-                ripple_scale: 0.5
+                _no_ripple_effect: True
                 theme_icon_color: "Custom"
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
-                on_release:
+                on_press:
                     root.forward_rewind(self.icon)
             
             MDIconButton:
                 icon: "skip-previous"
                 theme_icon_color: "Custom"
-                ripple_scale: 0.5
+                _no_ripple_effect: True
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
                 icon_size: "44sp"  
                 pos_hint: {'center_x': 0.05, 'center_y': 0}
@@ -767,7 +767,7 @@ MDScreenManager:
             MDIconButton:
                 icon: "skip-next"
                 theme_icon_color: "Custom"
-                ripple_scale: 0.5
+                _no_ripple_effect: True
                 icon_color: utils.get_color_from_hex(colors[app.theme_cls.primary_palette][app.theme_cls.primary_light_hue]) 
                 icon_size: "44sp"  
                 pos_hint: {'center_x': 0.95, 'center_y': 0}
@@ -984,12 +984,7 @@ class PlayScreen(MDScreen):
         self.playscreen_ids = MDApp.get_running_app().screens.get_screen('playscreen').ids
         self.slider = self.playscreen_ids.slider
 
-        if MDApp.get_running_app().screens.get_screen('menuscreen').check_internet_connection() != 'off':
-            self.playscreen_ids.album_picture.source = MDApp.get_running_app().screens.get_screen(
-                'menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][1]
-        else:
-              self.playscreen_ids.album_picture.source = "assets/images/appicon.png"
-
+        self.playscreen_ids.album_picture.source = f"assets/images/{MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook}.jpg"
 
         self.playscreen_ids.audiobook_album_name.text = MDApp.get_running_app().screens.get_screen(
             'menuscreen').dict_book_link[MDApp.get_running_app().screens.get_screen('menuscreen').selected_audiobook][0]
@@ -1089,15 +1084,32 @@ class MenuScreen(MDScreen):
 
     def on_enter(self, *kwargs):
 
-        with open('app data/book link dict.yaml', 'r') as file:
-            self.dict_book_link = yaml.safe_load(file)
+        # with open('app data/book link dict.yaml', 'r') as file:
+        #     self.dict_book_link = yaml.safe_load(file)
+        
+        self.dict_book_link = MDApp.get_running_app().dict_book_link
 
         # self.downloaded_audiobook_list = []
+        if len(self.ids.md_list.children) != 0:
+            self.audiobook_primary_text = "No such audiobook found in your library"
+            self.audiobook_secondary_text = "Audiobooks available to download can be browsed"
+            self.gif_source = "assets/images/catsitting.zip"
+            self.ids.here_label.disabled = False
+
+        else:
+            self.gif_source = "assets/images/welcome cat.zip"
+            self.audiobook_primary_text = 'Hey buddy! You`ve no audiobooks'
+            self.audiobook_secondary_text = 'Let me show you how to download some by clicking'
+            self.ids.here_label.text = 'here'
+            self.ids.here_label.disabled = False
 
     def remove_item(self, instance):
 
         if os.path.exists(f"app data/audiobooks/{instance.text.lower()}"):
             shutil.rmtree(f"app data/audiobooks/{instance.text.lower()}")
+
+        if os.path.isfile(f"assets/images/{instance.text.lower()}.jpg"):
+            os.remove(f"assets/images/{instance.text.lower()}.jpg")
 
         with open(r"app data/downloaded_audiobooks.dat", "rb+") as file_object:
             downloaded_audiobooks = []
@@ -1114,6 +1126,27 @@ class MenuScreen(MDScreen):
 
         MDApp.get_running_app().screens.get_screen(
             'menuscreen').ids.md_list.remove_widget(instance)
+        
+        MDApp.get_running_app().downloaded_audiobook_list.remove(instance.text.lower())
+        
+        if len(self.ids.md_list.children) != 0:
+            MDApp.get_running_app().screens.get_screen(
+            'menuscreen').audiobook_primary_text = "No sucha audiobook found in your library"
+            MDApp.get_running_app().screens.get_screen(
+            'menuscreen').audiobook_secondary_text = "Audiobooks available to download can be browsed"
+            MDApp.get_running_app().screens.get_screen(
+            'menuscreen').gif_source = "assets/images/catsitting.zip"
+            MDApp.get_running_app().screens.get_screen('menuscreen').ids.here_label.disabled = False
+        else:
+            MDApp.get_running_app().screens.get_screen(
+            'menuscreen').gif_source = "assets/images/welcome cat.zip"
+            MDApp.get_running_app().screens.get_screen(
+            'menuscreen').audiobook_primary_text = 'Hey buddy! You`ve no audiobooks'
+            MDApp.get_running_app().screens.get_screen(
+            'menuscreen').audiobook_secondary_text = 'Let me show you how to download some by clicking'
+            MDApp.get_running_app().screens.get_screen('menuscreen').ids.here_label.text = "here"
+            MDApp.get_running_app().screens.get_screen('menuscreen').ids.here_label.disabled = False
+
 
     def palette_button_fun(self, *kwargs):
         MDApp.get_running_app().theme_menu.caller = self.ids.color_palette
@@ -1121,16 +1154,8 @@ class MenuScreen(MDScreen):
     
 
     def show_download_list(self, *kwargs):
-        self.already_downloaded_audiobooks = []
-
-        if os.path.isfile("app data/downloaded_audiobooks.dat"):
-            with (open("app data/downloaded_audiobooks.dat", "rb")) as openfile:
-                try:
-                    while True:
-                        self.already_downloaded_audiobooks.append(
-                            pickle.load(openfile))
-                except EOFError:
-                    pass
+        
+        self.already_downloaded_audiobooks = MDApp.get_running_app().downloaded_audiobook_list
 
         dialog_items = []
 
@@ -1169,7 +1194,7 @@ class MenuScreen(MDScreen):
                     text_color=(1, 1, 1, 1),
                     line_color=utils.get_color_from_hex(
                         colors[MDApp.get_running_app().theme_cls.primary_palette]['700']),
-                    on_release=lambda x: self.update_download_list()
+                    on_press=lambda x: self.update_download_list()
 
                 ),
 
@@ -1213,9 +1238,12 @@ class MenuScreen(MDScreen):
         
         Snackbar(text=f"Cancelling download...", snackbar_x="10dp", bg_color=utils.get_color_from_hex(colors[MDApp.get_running_app().theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue]), snackbar_y="10dp", size_hint_x=(self.width - 20) / self.width, elevation=2).open()
 
-        for i in self.dialogx.children[0].children[0].children[0].children:
-            if i.text == "Cancel Download":
-                i.disabled = True
+        # for i in self.dialogx.children[0].children[0].children[0].children:      # Don`t just disable the button, remove it`
+            # if i.text == "Cancel Download":
+                # i.disabled = True
+
+        self.dialogx.children[0].children[0].children[0].remove_widget(
+                    self.cancel_download_button)
 
         global flag
         flag = False
@@ -1262,9 +1290,11 @@ class MenuScreen(MDScreen):
                 # This is a list containing nested list for downloading
                 complete_url_list_with_filepath = []
                 for i in self.dict_book_link.keys():
-                    for j in self.dict_book_link[i][2].keys():
-                        if i in self.selected_books:
+                    if i in self.selected_books:
+                        for j in self.dict_book_link[i][2].keys():
                             complete_url_list_with_filepath.append([i.lower(), j.lower(), self.dict_book_link[i][2][j], self.dict_book_link[i][3]])
+                        complete_url_list_with_filepath.append([i.lower(), "don`t care about this value right here" ,self.dict_book_link[i][1]])
+                            
 
                 # Forming a dictionary to store the size of audiobook and current_downloaded_size
                 global downloading_size_dict
@@ -1398,10 +1428,25 @@ class MenuScreen(MDScreen):
 
                         MDApp.get_running_app().screens.get_screen('menuscreen').ids.md_list.add_widget(
                             SwipeToDeleteItem(text=f"{variable}".title(
-                            ), secondary_text=f"{self.dict_book_link[variable][0]}", source=f"{self.dict_book_link[variable][1]}")
+                            ), secondary_text=f"{self.dict_book_link[variable][0]}", source=f"assets/images/{variable}.jpg", on_press=lambda x: self.insert_audiobook_parts(variable))
                         )
 
                         pickle.dump(variable, file)
+
+                    MDApp.get_running_app().downloaded_audiobook_list.append(variable)
+
+                    if len(self.ids.md_list.children) != 0:
+                        self.audiobook_primary_text = "No such audiobook found in your library"
+                        self.audiobook_secondary_text = "Audiobooks available to download can be browsed"
+                        self.gif_source = "assets/images/catsitting.zip"
+                        self.ids.here_label.disabled = False
+                    else:
+                        self.gif_source = "assets/images/welcome cat.zip"
+                        self.audiobook_primary_text = 'Hey buddy! You`ve no audiobooks'
+                        self.audiobook_secondary_text = 'Let me show you how to download some by clicking'
+                        self.ids.here_label.text = "here"
+                        self.ids.here_label.disabled = False
+
 
         if set(self.selected_books) == set(self.downloaded_audiobooks) or flag == False:
             self.stop_scheduled_function()
@@ -1442,37 +1487,44 @@ class MenuScreen(MDScreen):
             
             global combined_download_percentage
             global flag
-            # download_filder_path contains the name of the file as well
-            download_folder_path = os.path.join(
-                r'app data/audiobooks', url_filepath_list[0])
-
-            if not os.path.exists(download_folder_path):
-                os.makedirs(download_folder_path)
-
-            filename = url_filepath_list[1]
-
-            CHUNK_SIZE = 32768
-            f = open(os.path.join(download_folder_path, filename)+'.mp3', "wb")
-            for chunk in response.iter_content(CHUNK_SIZE):
-                if chunk:
-                    downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"] += len(
-                        chunk)/(1024*1024)
-
-                    combined_downloaded_size = sum(
-                        [downloading_size_dict[i] for i in downloading_size_dict.keys() if i.endswith("_downloaded_size")])
-
-                    combined_full_size = sum(
-                        [downloading_size_dict[i] for i in downloading_size_dict.keys() if i.endswith("_full_size")])
-
-                    combined_download_percentage = combined_downloaded_size / combined_full_size * 100
-
-                    f.write(chunk)
+            
+            if len(url_filepath_list) != 3:
                 
-                if not flag:
-                    return
+                # download_folder_path contains the name of the file as well
+                download_folder_path = os.path.join(
+                    r'app data/audiobooks', url_filepath_list[0])
 
+                if not os.path.exists(download_folder_path):
+                    os.makedirs(download_folder_path)
+
+                filename = url_filepath_list[1]
+
+                CHUNK_SIZE = 32768
+                f = open(os.path.join(download_folder_path, filename)+'.mp3', "wb")
+                for chunk in response.iter_content(CHUNK_SIZE):
+                    if chunk:
+                        downloading_size_dict[f"{url_filepath_list[0].lower()}_downloaded_size"] += len(
+                            chunk)/(1024*1024)
+
+                        combined_downloaded_size = sum(
+                            [downloading_size_dict[i] for i in downloading_size_dict.keys() if i.endswith("_downloaded_size")])
+
+                        combined_full_size = sum(
+                            [downloading_size_dict[i] for i in downloading_size_dict.keys() if i.endswith("_full_size")])
+
+                        combined_download_percentage = combined_downloaded_size / combined_full_size * 100
+
+                        f.write(chunk)
+                    
+                    if not flag:
+                        return
+
+                else:
+                    f.close()
+            
             else:
-                f.close()
+                with open(f"assets/images/{url_filepath_list[0]}.jpg", "wb") as file:
+                    file.write(response.content)
 
         self.updateTotalDownloadingPercentageSchedulerEvent = Clock.schedule_interval(
             self.updateTotalDownloadingPercentage, 0.5)
@@ -1493,6 +1545,8 @@ class MenuScreen(MDScreen):
             self.label_button.text = "[font=assets/fonts/try4.ttf]Downloading... [/font]" + \
                 f"[b]{round(combined_download_percentage, 1)}%[/b]"
         else:
+            self.dialogx.children[0].children[0].children[0].remove_widget(
+                    self.cancel_download_button)
             Clock.unschedule(self.updateTotalDownloadingPercentageSchedulerEvent)
             self.closingCounterSchedulerEvent = Clock.schedule_interval(partial(self.closingCounter,"download_finished"), 1)
             Clock.schedule_once(self.implementCounterEnd, 11) 
@@ -1533,9 +1587,9 @@ class MenuScreen(MDScreen):
 
         MDApp.get_running_app().screens.get_screen(
             'playscreen').ids.md_list_2.clear_widgets()
-        self.selected_audiobook = instance.text.lower()
+        self.selected_audiobook = instance.lower()
 
-        for i in self.dict_book_link[instance.text.lower()][2]:
+        for i in self.dict_book_link[instance.lower()][2]:
             MDApp.get_running_app().screens.get_screen('playscreen').ids.md_list_2.add_widget(
                 OneLineAvatarIconListItem(IconLeftWidget(icon="headphones", theme_icon_color="Custom", icon_color=(1, 1, 1, 1), disabled=True), text=f"{i}".replace('part', 'part-').title(), theme_text_color="Custom", text_color=(1, 1, 1, 1), radius=[10, ]                                          # , bg_color = (0,0,0,0.35)
                                           , on_press=self.part_highlight,
@@ -1583,7 +1637,7 @@ class MenuScreen(MDScreen):
                                         secondary_theme_text_color="Custom",
                                         secondary_text_color=(0, 0, 0, 0),
                                         sliding_text=f"{self.dict_book_link[i][0].title()}",
-                                        source=self.dict_book_link[i][1],
+                                        source=f"{self.dict_book_link[i][1]}",
                                         mb_text=self.dict_book_link[i][3],
                                         new_icon='new-box',
                                         divider='Inset',
@@ -1614,21 +1668,19 @@ class MenuScreen(MDScreen):
     def set_menu_screen_list_items(self, text="", search=False):
         if search:
             self.ids.md_list.clear_widgets()
-
             for audiobook in MDApp.get_running_app().downloaded_audiobook_list:
                 if text in audiobook.lower():
                     self.ids.md_list.add_widget(
                         SwipeToDeleteItem(text=f"{audiobook}".title(
-                        ), secondary_text=f"{self.dict_book_link[audiobook][0]}", source=f"{self.dict_book_link[audiobook][1]}")
+                        ), secondary_text=f"{self.dict_book_link[audiobook][0]}", source=f"assets/images/{audiobook}.jpg", on_press=lambda x: self.insert_audiobook_parts(audiobook))
                     )
-
         else:
             for audiobook in MDApp.get_running_app().downloaded_audiobook_list:
                 self.ids.md_list.add_widget(
                     SwipeToDeleteItem(text=f"{audiobook}".title(
-                    ), secondary_text=f"{self.dict_book_link[audiobook][0]}", source=f"{self.dict_book_link[audiobook][1]}")
+                    ), secondary_text=f"{self.dict_book_link[audiobook][0]}", source=f"assets/images/{audiobook}.jpg", on_press=lambda x: self.insert_audiobook_parts(audiobook))
                 )
-
+        self.ids.here_label.disabled = False
 
 
 class WelcomeScreen(MDScreen):
@@ -1703,11 +1755,12 @@ class MainApp(MDApp):
                             pickle.load(file_object))
                 except EOFError:
                     pass
+                
 
         for i in self.downloaded_audiobook_list:
             self.screens.get_screen('menuscreen').ids.md_list.add_widget(
                 SwipeToDeleteItem(text=f"{i}".title(
-                ), secondary_text=f"{self.dict_book_link[i][0]}", source=f"{self.dict_book_link[i][1]}")
+                ), secondary_text=f"{self.dict_book_link[i][0]}", source=f"assets/images/{i}.jpg", on_press=lambda x: self.screens.get_screen('menuscreen').insert_audiobook_parts(i))
             )
 
         # Sleep timer drop-down menu
@@ -1822,7 +1875,8 @@ class MainApp(MDApp):
         self.theme_menu.background_color = utils.get_color_from_hex(colors[MDApp.get_running_app(
         ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
         self.sleep_menu.dismiss()
-        self.screens.get_screen('menuscreen').ids.here_label.text = f'[color={colors[self.theme_cls.primary_palette][self.theme_cls.primary_hue]}]here[/color]' if self.screens.get_screen('menuscreen').ids.md_list.children == [] else ""
+        self.screens.get_screen('menuscreen').ids.here_label.text_color = utils.get_color_from_hex(colors[MDApp.get_running_app(
+        ).theme_cls.primary_palette][MDApp.get_running_app().theme_cls.primary_hue])
 
     def change_sleep_button_color(self, *args):
         self.screens.get_screen(
