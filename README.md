@@ -41,6 +41,12 @@ A minimalist, offline-friendly **audiobook player app** built using **KivyMD**, 
   
 ---
 
+## Video Run
+
+▶ [Watch demo video](screenshots/demo.mp4)
+
+---
+
 ## App Structure
 
 ```
