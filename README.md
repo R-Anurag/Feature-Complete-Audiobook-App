@@ -1,29 +1,29 @@
-# 🎧 KivyMD Audiobook Player
+# KivyMD Audiobook Player 🎧
 
 A minimalist, offline-friendly **audiobook player app** built using **KivyMD**, with support for audio part selection, playback control, and sleep timer functionality. Designed with a smooth UI and persistent local storage for downloaded content.
 
 ---
 
-## 🚀 Features
+## Features
 
-- 📚 **Multi-Part Audiobook Support**  
+- **Multi-Part Audiobook Support**  
   Each book consists of multiple audio parts, selectable from a dropdown.
 
-- 🎧 **Playback Controls**  
+- **Playback Controls**  
   Play, pause, and seek support with real-time UI updates.
 
-- 🌙 **Sleep Timer**  
+- **Sleep Timer**  
   Set auto-pause after 5, 10, 15, 30 minutes, or at the end of the episode.
 
-- 💾 **Persistent Storage**  
+- **Persistent Storage**  
   Saves downloaded audiobooks and their structure locally using `pickle` and `yaml`.
 
-- 🎨 **Dynamic Theming**  
+- **Dynamic Theming**  
   Switch between light/dark modes with customizable primary palettes.
 
 ---
 
-## 📱 Screenshots
+## Screenshots
 
 | Menu Screen | Play Screen |
 |-------------|-------------|
@@ -33,7 +33,7 @@ A minimalist, offline-friendly **audiobook player app** built using **KivyMD**, 
   
 ---
 
-## 🧩 App Structure
+## App Structure
 
 ```
 📦 root/
@@ -51,7 +51,7 @@ A minimalist, offline-friendly **audiobook player app** built using **KivyMD**, 
 
 ---
 
-## ⚙ Installation
+## Installation
 
 ### 1. Clone the Repository
 
@@ -74,7 +74,7 @@ pip install kivy kivymd ffpyplayer pyyaml
 
 ---
 
-## ▶️ Running the App
+## Running the App
 
 ```bash
 python main.py
@@ -84,7 +84,7 @@ Ensure you're running this on **desktop** or a compatible Android Kivy build. Us
 
 ---
 
-## 🧠 How It Works
+## How It Works
 
 - Loads `dict_book_link.yaml` to find audio part links
 - Downloads and stores `.mp3` files locally under `assets/audio/`
@@ -95,30 +95,21 @@ Ensure you're running this on **desktop** or a compatible Android Kivy build. Us
 
 ---
 
-## 🛠 Known Limitations
-
-- Seeking might behave differently on mobile if not using `ffpyplayer`
-- Does not stream directly; assumes pre-download model
-- No bookmarks or resume-from-last-position yet (can be added easily)
-
----
-
 ## 📌 TODO (Open for Contributions!)
 
-- [ ] Add cover images for each book
 - [ ] Resume playback from last position
 - [ ] Add bookmarking per chapter
 - [ ] Stream audio without downloading
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
 
 ---
 
-## ✨ Credits
+## Credits
 
 Built using:
 
@@ -128,7 +119,7 @@ Built using:
 
 ---
 
-## 💬 Feedback
+## Feedback
 
 Have ideas or issues?  
 Open an issue or [start a discussion](https://github.com/yourusername/kivymd-audiobook-player/discussions).
