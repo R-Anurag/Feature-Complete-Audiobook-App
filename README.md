@@ -26,12 +26,17 @@ A minimalist, offline-friendly **audiobook player app** built using **KivyMD**, 
 ## Screenshots
 
 <p float="left">
-  <img src="screenshots/menu1.png" width="200" />
-  <img src="screenshots/menu2.png" width="200" />
-  <img src="screenshots/menu3.png" width="200" />
-  <img src="screenshots/menu4.png" width="200" />
+  <img src="screenshots/splash.jpeg" width="200" />
+  <img src="screenshots/menu1.jpeg" width="200" />
+  <img src="screenshots/menu2.jpeg" width="200" />
+  <img src="screenshots/download1.jpeg" width="200" />
+  <img src="screenshots/download2.jpeg" width="200" />
   <img src="screenshots/play1.png" width="200" />
   <img src="screenshots/play2.png" width="200" />
+  <img src="screenshots/search1.png" width="200" />
+  <img src="screenshots/search2.png" width="200" />
+  <img src="screenshots/theme1.png" width="200" />
+  <img src="screenshots/theme2.png" width="200" />
 </p>
   
 ---
