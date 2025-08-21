@@ -98,20 +98,8 @@ Ensure you're running this on **desktop** or a compatible Android Kivy build. Us
 
 ---
 
-## How It Works
-
-- Loads `dict_book_link.yaml` to find audio part links
-- Downloads and stores `.mp3` files locally under `assets/audio/`
-- Shows available books in a dropdown menu
-- Remembers previously downloaded books using `audiobook_list.pkl`
-- Audio playback managed via Kivy's `SoundLoader` (uses `ffpyplayer`)
-- Timer shuts off audio based on user selection
-
----
-
 ## 📌 TODO (Open for Contributions!)
 
-- [ ] Resume playback from last position
 - [ ] Add bookmarking per chapter
 - [ ] Stream audio without downloading
 
