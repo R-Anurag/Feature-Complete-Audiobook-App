@@ -70,7 +70,7 @@ A minimalist, offline-friendly **audiobook player app** built using **KivyMD**, 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/R-Anurag/kivy-audiobookApp.git
+git clone https://github.com/R-Anurag/Feature-Complete-Audiobook-App.git
 cd kivymd-audiobook-player
 ```
 
