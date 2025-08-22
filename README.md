@@ -15,11 +15,11 @@ A minimalist, offline-friendly **audiobook player app** built using **KivyMD**, 
 - **Sleep Timer**  
   Set auto-pause after 5, 10, 15, 30 minutes, or at the end of the episode.
 
-- **Persistent Storage**  
-  Saves downloaded audiobooks and their structure locally using `pickle` and `yaml`.
+- **Persistent & Syncing Storage**
+  Automatically saves downloaded audiobooks and their structure locally, while listening for server updates to fetch and store newly added audiobooks.
 
 - **Dynamic Theming**  
-  Switch between light/dark modes with customizable primary palettes.
+  Customizable primary palettes (more than 20 unique color-palettes)
 
 ---
 
